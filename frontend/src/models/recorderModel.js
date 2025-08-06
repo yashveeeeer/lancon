@@ -23,9 +23,8 @@ export class RecorderModel {
       this.recorder.addEventListener('stop', () => {
         // Stop the microphone stream
         this.stream.getTracks().forEach(track => track.stop());
-        
-        const blob = new Blob(this.chunks, { mimeType: 'audio/webm; codecs=opus' });
-        console.log("creating the blob")
+        const blob = new Blob(this.chunks, { 'type': 'audio/ogg; codecs=opus' });
+        this.sendAudio(blob)
         const audioURL = URL.createObjectURL(blob);
         this.audioCallback(audioURL);
       });
@@ -56,5 +55,19 @@ export class RecorderModel {
 
   onDataAvailable(callback) {
     this.audioCallback = callback;
+  }
+
+  sendAudio(blob){
+    const formData = new FormData();
+    formData.append('audiofile',blob,'recording.webm')
+
+    fetch("http://localhost:8000/upload-audio",{
+      method:'POST',
+      body:formData
+    })
+    .then(res=>res.text())
+    .then(data=>{
+      console.log('response from server',data)
+    })
   }
 }
