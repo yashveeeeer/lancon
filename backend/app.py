@@ -4,6 +4,9 @@ from fastapi import File, UploadFile
 from translation.trans import Transcribe_audio
 
 
+latest_transcription = ""
+
+
 app = FastAPI()
 
 #adding CORS middleware to allow requests from specific origins
@@ -24,4 +27,5 @@ app.add_middleware(
 @app.post("/upload-audio")
 async def upload_audio(audiofile: UploadFile):
     audio_bytes = await audiofile.read()
-    Transcribe_audio(audio_bytes)
+    latest_transcription=Transcribe_audio(audio_bytes)
+    return latest_transcription

@@ -65,9 +65,11 @@ export class RecorderModel {
       method:'POST',
       body:formData
     })
-    .then(res=>res.text())
+    .then(res=>res.json())
     .then(data=>{
       console.log('response from server',data)
+      console.log(typeof(data))
+      this.audioCallback(data)
     })
   }
 }

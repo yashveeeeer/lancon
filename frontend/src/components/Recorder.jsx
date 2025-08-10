@@ -5,13 +5,18 @@ import { RecorderModel } from '../models/recorderModel';
 const Recorder = () => {
   const modelRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [audioURL, setAudioURL] = useState(null);
+  const [data, setData] = useState(null)
 
   useEffect(() => {
     modelRef.current = new RecorderModel();
-
-    modelRef.current.onDataAvailable((url) => {
-      setAudioURL(url);
+    
+    modelRef.current.onDataAvailable((data) => {
+      try {
+      const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+      setData(parsedData);
+    } catch (err) {
+      console.error("Error parsing backend data:", err);
+  }
     });
   }, []);
 
@@ -37,16 +42,13 @@ const Recorder = () => {
       <button onClick={handleStop} disabled={!isRecording}>
         Stop Recording
       </button>
-
-      {audioURL && (
+      {data && (
         <div>
-          <h3>Playback:</h3>
-          <audio id="audioPlayback" controls src={audioURL}></audio>
           <br />
-          <a id="downloadLink" href={audioURL} download="recording.webm">
-            Download
-          </a>
+        <div className="english-text">{data?.english}</div>
+        <h1 className="japanese-text">{data?.japanese}</h1>
         </div>
+        
       )}
     </div>
   );
