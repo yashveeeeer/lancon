@@ -45,8 +45,18 @@ const Recorder = () => {
       {data && (
         <div>
           <br />
-        <div className="english-text">{data?.english}</div>
-        <h1 className="japanese-text">{data?.japanese}</h1>
+          <div className="english-text">{data?.english_text}</div>
+          <h1 className="japanese-text">{data?.japanese_text}</h1>
+          {data?.japanese_audio && (
+            <audio controls>
+             <source
+                src={`data:audio/mp3;base64,${data.japanese_audio}`}
+                type="audio/mp3"
+             />
+                Your browser does not support the audio tag.
+           </audio>
+          )}
+
         </div>
         
       )}
