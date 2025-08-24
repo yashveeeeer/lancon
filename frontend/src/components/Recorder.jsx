@@ -1,8 +1,11 @@
 // src/components/Recorder.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { RecorderModel } from '../models/recorderModel';
+import { useNavigate } from 'react-router-dom';
+
 
 const Recorder = () => {
+  const navigate = useNavigate();
   const modelRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [data, setData] = useState(null)
@@ -60,6 +63,8 @@ const Recorder = () => {
         </div>
         
       )}
+      <button onClick={()=>navigate('/socio')}>Go to Socket.IO Page</button>
+      <button onClick={()=>navigate('/ws/chat')}>for chat</button>
     </div>
   );
 };
