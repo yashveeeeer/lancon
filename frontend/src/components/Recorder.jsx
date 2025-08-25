@@ -63,7 +63,6 @@ const Recorder = () => {
         </div>
         
       )}
-      <button onClick={()=>navigate('/socio')}>Go to Socket.IO Page</button>
       <button onClick={()=>navigate('/ws/chat')}>for chat</button>
     </div>
   );

@@ -29,6 +29,7 @@ app.add_middleware(
 async def upload_audio(audiofile: UploadFile):
     audio_bytes = await audiofile.read()
     latest_transcription=Transcribe_audio(audio_bytes)
+    return latest_transcription
 
 connected_users = {}
 @app.get("/")
