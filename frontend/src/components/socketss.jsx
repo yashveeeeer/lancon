@@ -71,6 +71,11 @@ function Chat() {
                   placeholder="Enter your user ID (e.g., alice)"
                   value={inputId}
                   onChange={(e) => setInputId(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && inputId.trim() !== "") {
+                      setUserId(inputId);
+                    }
+                  }}
                 />
                 <button
                   className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600"
@@ -90,14 +95,27 @@ function Chat() {
                   placeholder="Send to user..."
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && to.trim() !== "") {
+                      e.preventDefault();
+                    }
+                  }}
                 />
 
                 <div className="flex mb-3 gap-2">
-                  <input
-                    className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none dark:bg-gray-700 dark:border-gray-600"
+                  <textarea
+                    className="flex-1 p-2 border rounded-lg resize-none h-12 focus:ring-2 focus:ring-indigo-400 outline-none dark:bg-gray-700 dark:border-gray-600"
                     placeholder="Type a message..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (message.trim() !== "") {
+                          sendMessage();
+                        }
+                      }
+                    }}
                   />
                   <button
                     className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600"
