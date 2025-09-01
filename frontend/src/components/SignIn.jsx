@@ -140,6 +140,16 @@ const SignPage = () => {
           </button>
         </div>
       </form>
+
+      {/* A simple link to the sign-up page */}
+      <div className="mt-4 text-center text-sm">
+        <span className="text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
+          Already have an account? 
+        </span>
+        <a href="http://localhost:3000/Login" className="font-bold text-[#8080FF] hover:underline" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
+          Log In
+        </a>
+      </div>
       
       {/* Display a message to the user if one exists. */}
       {message && (
