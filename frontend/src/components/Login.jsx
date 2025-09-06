@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 
 // The main App component that renders the LoginPage.
 const App = () => {
@@ -17,6 +18,7 @@ const LoginPage = () => {
   
   // State for a message to the user after form submission.
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   // Handles the form submission event.
   const handleSubmit = async (event) => {
@@ -42,10 +44,11 @@ const LoginPage = () => {
       if (response.ok) {
         setMessage('Login successful!');
         // You can save the token here for future use, but for now we'll just log it.
-        console.log('Login successful! Access token:', data.access_token);
+        localStorage.setItem("access_token",data.access_token)
         // Clear form fields on success
         setUsername('');
         setPassword('');
+        navigate("/recorder");  
       } else {
         // Handle backend errors and display the error message.
         setMessage(`Error: ${data.detail || 'Something went wrong.'}`);

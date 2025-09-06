@@ -5,12 +5,20 @@ import SignPage from './components/SignIn.jsx';
 import Socket from './components/socketss.jsx';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LogInPage from './components/Login.jsx';
+import ProtectedRoutes from './utils/ProtectedRoutes.jsx';
 
 const router = createBrowserRouter([
+  { path: '/', element: <LogInPage /> },
   { path: '/signup', element: <SignPage /> },
   { path: '/login', element: <LogInPage /> },
-  { path: '/recorder', element: <Recorder /> },
-  { path: '/ws/chat', element: <Socket /> }
+
+  {
+    element: <ProtectedRoutes />,
+    children: [
+      { path: '/recorder', element: <Recorder /> },
+      { path: '/ws/chat', element: <Socket /> },
+    ],
+  },
 ]);
 
 
