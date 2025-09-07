@@ -9,7 +9,7 @@ const translations = {
     appTitle: "LANCON Voice",
     lightMode: "☀️ Light",
     darkMode: "🌙 Dark",
-    subtitle: "Real-time speech translation powered by AI",
+    subtitle: "Real-time speech translation powered by AI from English to Japanese",
     recordingInProgress: "Recording in progress...",
     readyToRecord: "Ready to record",
     englishLabel: "English",
@@ -55,6 +55,52 @@ const Recorder = () => {
     setCurrentLang(lang);
   };
 
+  // Helper function to extract text from complex response objects
+  const extractTextFromResponse = (textData) => {
+    if (!textData) return "";
+
+    // Handle simple string
+    if (typeof textData === "string" && !textData.includes("'text':") && !textData.includes('"text"')) {
+      return textData;
+    }
+
+    // Handle object with text property
+    if (typeof textData === "object" && textData.text) {
+      return textData.text;
+    }
+
+    // Handle stringified JSON
+    if (typeof textData === "string") {
+      try {
+        // Replace single quotes with double quotes for JSON parsing
+        const cleanedData = textData.replace(/'/g, '"');
+        const parsed = JSON.parse(cleanedData);
+        if (parsed.text) {
+          return parsed.text;
+        }
+        // If no text property, return the raw string if it looks like plain text
+        if (!textData.includes('{') && !textData.includes('}')) {
+          return textData;
+        }
+      } catch (e) {
+        console.warn("Failed to parse textData as JSON:", textData, e);
+        // Fallback: Try regex for common patterns
+        const match = textData.match(/"text":\s*"([^"]+)"/) || textData.match(/'text':\s*'([^']+)'/);
+        if (match && match[1]) {
+          return match[1];
+        }
+        // Return raw string as last resort if it seems like plain text
+        if (!textData.includes('{') && !textData.includes('}')) {
+          return textData;
+        }
+      }
+    }
+
+    // Fallback for unexpected formats
+    console.warn("Unrecognized textData format:", textData);
+    return t("invalidDataReceived");
+  };
+
   useEffect(() => {
     let animationFrame;
     if (isRecording) {
@@ -73,15 +119,27 @@ const Recorder = () => {
     modelRef.current = new RecorderModel();
 
     modelRef.current.onDataAvailable((data) => {
+      console.log("Raw data received:", data, typeof data); // Enhanced debug log
       try {
         const parsed = typeof data === "string" ? JSON.parse(data) : data;
+        console.log("Parsed response:", parsed); // Enhanced debug log
 
         // Ensure it has expected fields
         if (
           parsed && typeof parsed === "object" &&
           ("english_text" in parsed || "japanese_text" in parsed)
         ) {
-          setData(parsed);
+          // Extract clean text from potentially complex response objects
+          const cleanEnglishText = extractTextFromResponse(parsed.english_text);
+          const cleanJapaneseText = extractTextFromResponse(parsed.japanese_text);
+
+          console.log("Extracted texts:", { cleanEnglishText, cleanJapaneseText }); // Debug log
+
+          setData({
+            english_text: cleanEnglishText,
+            japanese_text: cleanJapaneseText,
+            japanese_audio: parsed.japanese_audio
+          });
         } else {
           console.warn("Unexpected response format:", parsed);
           setData({
@@ -93,7 +151,7 @@ const Recorder = () => {
 
         setAudioKey(prev => prev + 1);
       } catch (err) {
-        console.error("Error parsing backend data:", err);
+        console.error("Parsing error:", err, "Raw data:", data); // Enhanced error log
         setData({
           english_text: t("errorParsingResponse"),
           japanese_text: "",
@@ -118,7 +176,19 @@ const Recorder = () => {
   };
 
   const audioSrc = data?.japanese_audio
-    ? `data:audio/mp3;base64,${data.japanese_audio}`
+    ? (() => {
+        try {
+          // Validate base64 string
+          if (!/^[A-Za-z0-9+/=]+$/.test(data.japanese_audio)) {
+            console.warn("Invalid base64 audio data:", data.japanese_audio);
+            return null;
+          }
+          return `data:audio/mp3;base64,${data.japanese_audio}`;
+        } catch (e) {
+          console.error("Error processing audio data:", e);
+          return null;
+        }
+      })()
     : null;
 
   return (
