@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 
-// Translation object
+// Enhanced Translation object with all missing translations
 const translations = {
   en: {
     appTitle: "LANCON Voice",
@@ -14,7 +14,25 @@ const translations = {
     loginButton: "Login",
     signup: "Sign up",
     loggingIn: "Logging in...",
-    accountexp: "Don't have an account?"
+    accountexp: "Don't have an account?",
+    // Missing placeholder texts
+    usernamePlaceholder: "Enter your username",
+    passwordPlaceholder: "Enter your password",
+    // Missing success/error messages
+    loginSuccessful: "Login successful!",
+    somethingWentWrong: "Something went wrong.",
+    networkError: "Network error:",
+    error: "Error:",
+    // Additional helpful messages
+    loadingText: "Please wait...",
+    invalidCredentials: "Invalid username or password",
+    serverError: "Server error occurred",
+    // Accessibility labels
+    usernameFieldLabel: "Username input field",
+    passwordFieldLabel: "Password input field", 
+    loginButtonLabel: "Login button",
+    themeToggleLabel: "Toggle theme",
+    languageToggleLabel: "Change language"
   },
   ja: {
     appTitle: "LANCON Voice",
@@ -27,7 +45,25 @@ const translations = {
     loginButton: "ログイン", 
     signup: "サインアップ",
     loggingIn: "ログイン中...",
-    accountexp: "アカウントをお持ちではありませんか？"
+    accountexp: "アカウントをお持ちではありませんか？",
+    // Missing placeholder texts - translated
+    usernamePlaceholder: "ユーザー名を入力してください",
+    passwordPlaceholder: "パスワードを入力してください", 
+    // Missing success/error messages - translated
+    loginSuccessful: "ログイン成功！",
+    somethingWentWrong: "何か問題が発生しました。",
+    networkError: "ネットワークエラー：",
+    error: "エラー：",
+    // Additional helpful messages - translated
+    loadingText: "お待ちください...",
+    invalidCredentials: "ユーザー名またはパスワードが無効です",
+    serverError: "サーバーエラーが発生しました",
+    // Accessibility labels - translated
+    usernameFieldLabel: "ユーザー名入力フィールド",
+    passwordFieldLabel: "パスワード入力フィールド",
+    loginButtonLabel: "ログインボタン",
+    themeToggleLabel: "テーマの切り替え",
+    languageToggleLabel: "言語を変更"
   }
 };
 
@@ -37,24 +73,64 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // Track message type separately
   const [currentLang, setCurrentLang] = useState('en');
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Initialize theme from localStorage
+    const saved = localStorage.getItem('lancon-theme');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Translation function - memoized to fix React Hook warning
   const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
 
-  // Language change function
+  // Language change function with localStorage persistence
   const changeLanguage = (lang) => {
     setCurrentLang(lang);
+    localStorage.setItem('lancon-language', lang);
+  };
+
+  // Theme toggle with localStorage persistence
+  const toggleTheme = () => {
+    setDarkMode(prev => {
+      const newValue = !prev;
+      localStorage.setItem('lancon-theme', JSON.stringify(newValue));
+      return newValue;
+    });
+  };
+
+  // Load saved language preference on mount
+  useEffect(() => {
+    const savedLang = localStorage.getItem('lancon-language');
+    if (savedLang && translations[savedLang]) {
+      setCurrentLang(savedLang);
+    }
+  }, []);
+
+  // Get translated message based on type and current language
+  const getDisplayMessage = () => {
+    switch (messageType) {
+      case 'success':
+        return t("loginSuccessful");
+      case 'loading':
+        return t("loggingIn");
+      case 'error':
+        return `${t("error")} ${message}`;
+      case 'network':
+        return `${t("networkError")} ${message}`;
+      default:
+        return message;
+    }
   };
 
   // Handles the form submission event.
   const handleSubmit = async (event) => {
     // Prevent the form from reloading the page.
     event.preventDefault();
-    setMessage(t("loggingIn"));
+    setMessageType('loading');
+    setMessage('');
     setIsLoading(true);
     
     try {
@@ -72,7 +148,8 @@ const LoginPage = () => {
       
       // Check if the response was successful (status code 200-299).
       if (response.ok) {
-        setMessage('Login successful!');
+        setMessageType('success');
+        setMessage('');
         // You can save the token here for future use, but for now we'll just log it.
         localStorage.setItem("access_token", data.access_token);
         // Clear form fields on success
@@ -80,12 +157,15 @@ const LoginPage = () => {
         setPassword('');
         navigate("/recorder");  
       } else {
-        // Handle backend errors and display the error message.
-        setMessage(`Error: ${data.detail || 'Something went wrong.'}`);
+        // Handle backend errors and display the translated error message.
+        const errorMsg = data.detail || t("somethingWentWrong");
+        setMessageType('error');
+        setMessage(errorMsg);
       }
     } catch (error) {
-      // Handle network or other errors.
-      setMessage(`Network error: ${error.message}`);
+      // Handle network or other errors with translated message.
+      setMessageType('network');
+      setMessage(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +184,9 @@ const LoginPage = () => {
             <div className="flex gap-2">
               <button
                 className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30 transition-colors"
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleTheme}
+                aria-label={t("themeToggleLabel")}
+                title={t("themeToggleLabel")}
               >
                 {darkMode ? t("lightMode") : t("darkMode")}
               </button>
@@ -120,6 +202,8 @@ const LoginPage = () => {
                   ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
                   : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
               }`}
+              aria-label="Switch to English"
+              title="Switch to English"
             >
               English
             </button>  
@@ -130,6 +214,8 @@ const LoginPage = () => {
                   ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
                   : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
               }`}
+              aria-label="日本語に切り替え"
+              title="日本語に切り替え"
             >
               日本語
             </button>   
@@ -168,8 +254,9 @@ const LoginPage = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="Enter your username"
+                  placeholder={t("usernamePlaceholder")}
                   disabled={isLoading}
+                  aria-label={t("usernameFieldLabel")}
                 />
               </div>
 
@@ -190,8 +277,9 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="Enter your password"
+                  placeholder={t("passwordPlaceholder")}
                   disabled={isLoading}
+                  aria-label={t("passwordFieldLabel")}
                 />
               </div>
 
@@ -201,10 +289,11 @@ const LoginPage = () => {
                   type="submit"
                   disabled={isLoading}
                   className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label={t("loginButtonLabel")}
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
                       <span>{t("loggingIn")}</span>
                     </div>
                   ) : (
@@ -215,19 +304,23 @@ const LoginPage = () => {
             </form>
             
             {/* Display message */}
-            {message && (
-              <div className="text-center">
+            {messageType && (
+              <div className="text-center" role="status" aria-live="polite">
                 <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-                  message.startsWith('Error') || message.startsWith('Network') 
+                  messageType === 'error' || messageType === 'network'
                     ? 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800' 
+                    : messageType === 'loading'
+                    ? 'bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
                     : 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800'
                 }`}>
-                  {message.startsWith('Error') || message.startsWith('Network') ? (
-                    <span className="mr-2">⚠️</span>
+                  {messageType === 'error' || messageType === 'network' ? (
+                    <span className="mr-2" aria-hidden="true">⚠️</span>
+                  ) : messageType === 'loading' ? (
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-2" aria-hidden="true"></div>
                   ) : (
-                    <span className="mr-2">✅</span>
+                    <span className="mr-2" aria-hidden="true">✅</span>
                   )}
-                  {message}
+                  {getDisplayMessage()}
                 </div>
               </div>
             )}
