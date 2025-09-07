@@ -18,7 +18,10 @@ const translations = {
     continueToChat: "Continue to Chat",
     audioNotSupported: "Your browser does not support the audio tag.",
     invalidDataReceived: "[Invalid data received]",
-    errorParsingResponse: "[Error parsing response]"
+    errorParsingResponse: "[Error parsing response]",
+    playAudio: "Play Audio",
+    pauseAudio: "Pause Audio",
+    audioError: "Audio playback error"
   },
   ja: {
     appTitle: "LANCON Voice",
@@ -33,8 +36,209 @@ const translations = {
     continueToChat: "チャットに進む",
     audioNotSupported: "お使いのブラウザは音声タグをサポートしていません。",
     invalidDataReceived: "[無効なデータを受信しました]",
-    errorParsingResponse: "[レスポンス解析エラー]"
+    errorParsingResponse: "[レスポンス解析エラー]",
+    playAudio: "音声再生",
+    pauseAudio: "音声停止",
+    audioError: "音声再生エラー"
   }
+};
+
+// Custom Audio Player Component
+const CustomAudioPlayer = ({ src, darkMode, t }) => {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+      setIsLoading(false);
+    };
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+
+    const handleError = () => {
+      setHasError(true);
+      setIsLoading(false);
+    };
+
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      setHasError(false);
+    };
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('canplay', handleCanPlay);
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('canplay', handleCanPlay);
+    };
+  }, [src]);
+
+  const togglePlayPause = async () => {
+    const audio = audioRef.current;
+    if (!audio || hasError) return;
+
+    try {
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        await audio.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error('Audio playback error:', error);
+      setHasError(true);
+    }
+  };
+
+  const handleProgressChange = (e) => {
+    const audio = audioRef.current;
+    if (!audio || hasError) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const newTime = (clickX / rect.width) * duration;
+    
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleVolumeChange = (e) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
+
+  const formatTime = (time) => {
+    if (isNaN(time)) return '0:00';
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  if (hasError) {
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
+        <p className="text-red-600 dark:text-red-400 text-sm">
+          {t("audioError")}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+      <audio ref={audioRef} src={src} preload="metadata" />
+      
+      <div className="flex items-center space-x-4">
+        {/* Play/Pause Button */}
+        <button
+          onClick={togglePlayPause}
+          disabled={isLoading}
+          className={`relative w-12 h-12 rounded-full font-semibold text-white transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 ${
+            isLoading
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-purple-500 hover:bg-purple-600 focus:ring-purple-500/50 shadow-lg'
+          }`}
+        >
+          {isLoading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+          ) : (
+            <span className="text-lg">
+              {isPlaying ? '⏸️' : '▶️'}
+            </span>
+          )}
+        </button>
+
+        {/* Progress and Time */}
+        <div className="flex-1 space-y-2">
+          {/* Progress Bar */}
+          <div
+            className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-full cursor-pointer overflow-hidden"
+            onClick={handleProgressChange}
+          >
+            <div
+              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-150"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+
+          {/* Time Display */}
+          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        {/* Volume Control */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm">🔊</span>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={volume}
+            onChange={handleVolumeChange}
+            className="w-16 h-1 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+            style={{
+              background: `linear-gradient(to right, rgb(168, 85, 247) 0%, rgb(168, 85, 247) ${volume * 100}%, rgb(209, 213, 219) ${volume * 100}%, rgb(209, 213, 219) 100%)`
+            }}
+          />
+        </div>
+      </div>
+
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 12px;
+          width: 12px;
+          border-radius: 50%;
+          background: rgb(168, 85, 247);
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider::-moz-range-thumb {
+          height: 12px;
+          width: 12px;
+          border-radius: 50%;
+          background: rgb(168, 85, 247);
+          cursor: pointer;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+      `}</style>
+    </div>
+  );
 };
 
 const Recorder = () => {
@@ -44,8 +248,8 @@ const Recorder = () => {
   const [data, setData] = useState(null);
   const [audioKey, setAudioKey] = useState(0);
   const [audioLevels, setAudioLevels] = useState(Array(12).fill(0));
-  const [currentLang, setCurrentLang] = useState('en'); // Language state
-  const [darkMode, setDarkMode] = useState(false); // theme toggle
+  const [currentLang, setCurrentLang] = useState('en');
+  const [darkMode, setDarkMode] = useState(false);
 
   // Translation function - memoized to fix React Hook warning
   const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
@@ -119,21 +323,19 @@ const Recorder = () => {
     modelRef.current = new RecorderModel();
 
     modelRef.current.onDataAvailable((data) => {
-      console.log("Raw data received:", data, typeof data); // Enhanced debug log
+      console.log("Raw data received:", data, typeof data);
       try {
         const parsed = typeof data === "string" ? JSON.parse(data) : data;
-        console.log("Parsed response:", parsed); // Enhanced debug log
+        console.log("Parsed response:", parsed);
 
-        // Ensure it has expected fields
         if (
           parsed && typeof parsed === "object" &&
           ("english_text" in parsed || "japanese_text" in parsed)
         ) {
-          // Extract clean text from potentially complex response objects
           const cleanEnglishText = extractTextFromResponse(parsed.english_text);
           const cleanJapaneseText = extractTextFromResponse(parsed.japanese_text);
 
-          console.log("Extracted texts:", { cleanEnglishText, cleanJapaneseText }); // Debug log
+          console.log("Extracted texts:", { cleanEnglishText, cleanJapaneseText });
 
           setData({
             english_text: cleanEnglishText,
@@ -151,7 +353,7 @@ const Recorder = () => {
 
         setAudioKey(prev => prev + 1);
       } catch (err) {
-        console.error("Parsing error:", err, "Raw data:", data); // Enhanced error log
+        console.error("Parsing error:", err, "Raw data:", data);
         setData({
           english_text: t("errorParsingResponse"),
           japanese_text: "",
@@ -159,7 +361,7 @@ const Recorder = () => {
         });
       }
     });
-  }, [t]); // Fixed: Added 't' to dependency array
+  }, [t]);
 
   const handleStart = async () => {
     const success = await modelRef.current.init();
@@ -178,7 +380,6 @@ const Recorder = () => {
   const audioSrc = data?.japanese_audio
     ? (() => {
         try {
-          // Validate base64 string
           if (!/^[A-Za-z0-9+/=]+$/.test(data.japanese_audio)) {
             console.warn("Invalid base64 audio data:", data.japanese_audio);
             return null;
@@ -192,7 +393,7 @@ const Recorder = () => {
     : null;
 
   return (
-    <div className={`${darkMode ? "dark" : ""}`}>
+    <div className={`${darkMode ? "dark" : ""} min-h-screen`}>
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors p-4">
         <div className="w-full max-w-2xl bg-white dark:bg-gray-800 shadow-lg rounded-2xl overflow-hidden text-gray-900 dark:text-gray-100 transition-colors">
           
@@ -321,22 +522,21 @@ const Recorder = () => {
                   </p>
                 </div>
 
-                {/* Audio Result */}
+                {/* Audio Result with Custom Player */}
                 {audioSrc && (
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border-l-4 border-purple-500 transition-colors">
-                    <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex items-center space-x-2 mb-3">
                       <span className="text-lg">🔊</span>
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">{t("audioLabel")}</h3>
                     </div>
-                    <audio 
-                      key={audioKey}
-                      controls
-                      className="w-full h-10 bg-white dark:bg-gray-800 rounded-lg"
-                    >
-                      <source src={audioSrc} type="audio/mp3" />
-                      <source src={audioSrc} type="audio/mpeg" />
-                      {t("audioNotSupported")}
-                    </audio>
+                    <div className="-mx-4 -mb-4">
+                      <CustomAudioPlayer 
+                        key={audioKey}
+                        src={audioSrc} 
+                        darkMode={darkMode}
+                        t={t}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
