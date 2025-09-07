@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 
 // The main App component that renders the LoginPage.
@@ -10,22 +10,50 @@ const App = () => {
   );
 };
 
+// Translation object
+const translations = {
+  en: {
+    loginTitle: "Login",
+    username: "Username",
+    password: "Password", 
+    loginButton: "Login",
+    signup: "Sign up",
+    loggingIn: "Logging in...",
+    accountexp: "Don't have an account?"
+  },
+  ja: {
+    loginTitle: "ログイン",
+    username: "ユーザー名",
+    password: "パスワード",
+    loginButton: "ログイン", 
+    signup: "サインアップ",
+    loggingIn: "ログイン中...",
+    accountexp: "アカウントをお持ちではありませんか？"
+  }
+};
+
 // The LoginPage component handles the user interface and form logic for user login.
 const LoginPage = () => {
-  // State variables to store the user's input for username and password.
+  // State variables
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
-  // State for a message to the user after form submission.
   const [message, setMessage] = useState('');
+  const [currentLang, setCurrentLang] = useState('en');
   const navigate = useNavigate();
+
+  // Simple translation function
+  const t = (key) => translations[currentLang][key] || key;
+
+  // Language change function
+  const changeLanguage = (lang) => {
+    setCurrentLang(lang);
+  };
 
   // Handles the form submission event.
   const handleSubmit = async (event) => {
     // Prevent the form from reloading the page.
     event.preventDefault();
-    
-    setMessage('Logging in...');
+    setMessage(t("loggingIn"));
     
     try {
       // Send the data to your FastAPI backend's login endpoint.
@@ -62,7 +90,7 @@ const LoginPage = () => {
   return (
     <div className="w-full max-w-md bg-[#D4D3D4] p-8 rounded-lg shadow-xl border-4 border-black">
       <h2 className="text-3xl font-extrabold text-black text-center mb-6" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-        LOG IN
+        {t("loginTitle")}
       </h2>
       
       {/* The main login form */}
@@ -72,7 +100,7 @@ const LoginPage = () => {
             htmlFor="username" 
             className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
           >
-            Username
+            {t("username")}
           </label>
           <div className="mt-1">
             <input
@@ -94,7 +122,7 @@ const LoginPage = () => {
             htmlFor="password" 
             className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
           >
-            Password
+            {t("password")}
           </label>
           <div className="mt-1">
             <input
@@ -105,7 +133,7 @@ const LoginPage = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="appearance-none block w-full px-3 py-2 border-2 border-black rounded-lg shadow-sm placeholder-gray-500 bg-[#E4E3E5] text-black focus:outline-none focus:ring-[#8080FF] focus:border-[#8080FF] sm:text-sm"
+              className="appearance-none block w-full px-3 py-2 border-2 border-black rounded-lg shadow-sm placeholder-gray-500 bg-[#E4E3E5] text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8080FF] sm:text-sm"
               placeholder="Enter your password"
             />
           </div>
@@ -116,7 +144,7 @@ const LoginPage = () => {
             type="submit"
             className="w-full flex justify-center py-2 px-4 border-2 border-black rounded-lg shadow-lg text-lg font-bold text-white bg-[#8080FF] hover:bg-[#A0A0FF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8080FF] transition-colors"
           >
-            Log In
+            {t("loginButton")}
           </button>
         </div>
       </form>
@@ -131,11 +159,27 @@ const LoginPage = () => {
       {/* A simple link to the sign-up page */}
       <div className="mt-4 text-center text-sm">
         <span className="text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          Don't have an account? 
+          {t("accountexp")} 
         </span>
         <a href="http://localhost:3000/Signup" className="font-bold text-[#8080FF] hover:underline" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          Sign Up
+          {t("signup")}
         </a>
+      </div>
+
+      {/* Language Switcher */}
+      <div className='mt-4 flex justify-center gap-2'>
+        <button 
+          onClick={() => changeLanguage("en")} 
+          className={`px-3 py-1 border rounded ${currentLang === 'en' ? 'bg-blue-200' : ''}`}
+        >
+          English
+        </button>  
+        <button 
+          onClick={() => changeLanguage("ja")} 
+          className={`px-3 py-1 border rounded ${currentLang === 'ja' ? 'bg-blue-200' : ''}`}
+        >
+          日本語
+        </button>   
       </div>
     </div>
   );

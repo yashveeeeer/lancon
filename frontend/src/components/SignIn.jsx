@@ -8,6 +8,34 @@ const App = () => {
     </div>
   );
 };
+// Translation object
+
+const translations = {
+  en: {
+    SignTitle: "CREATE YOUR ACCOUNT",
+    username: "Username",
+    email:"Email",
+    password: "Password", 
+    signinButton: "Sign Up",
+    login: "Log In",
+    SigningIn: "Signing in...",
+    accountver:"Already have an account?",
+    processing:"Processing...",
+    registration:"Registration successful!"
+  },
+  ja: {
+    SignTitle: "アカウントを作成する",
+    username: "ユーザー名",
+    email:"メールアドレス",
+    password: "パスワード",
+    signinButton: "サインアップ",
+    login: "ログイン",
+    SigningIn: "サインイン中...",
+    accountver:"すでにアカウントをお持ちですか？",
+    processing:"処理中...",
+    registration:"登録が完了しました！"
+  }
+};
 
 // The SignPage component handles the user interface and form logic for registration.
 const SignPage = () => {
@@ -15,9 +43,18 @@ const SignPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState(''); // Added email state
+  const [currentLang, setCurrentLang] = useState('en');
   
   // State for a message to the user after form submission.
   const [message, setMessage] = useState('');
+
+  // Translation Function
+  const t = (key)=> translations[currentLang][key] || key;
+
+  // Language change Function
+  const changeLanguage = (lang)=>{
+    setCurrentLang(lang);
+  }
 
   // Handles the form submission event.
   // It prevents the default browser behavior and sends data to the backend.
@@ -25,7 +62,7 @@ const SignPage = () => {
     // Prevent the form from reloading the page.
     event.preventDefault();
     
-    setMessage('Processing...');
+    setMessage(t("processing"));
     
     try {
       // Send the data to your FastAPI backend's registration endpoint.
@@ -42,7 +79,7 @@ const SignPage = () => {
       
       // Check if the response was successful (status code 200-299).
       if (response.ok) {
-        setMessage('Registration successful!');
+        setMessage(t("registration"));
         // Reset the form fields on success.
         setUsername('');
         setPassword('');
@@ -60,7 +97,7 @@ const SignPage = () => {
   return (
     <div className="w-full max-w-md bg-[#D4D3D4] p-8 rounded-lg shadow-xl border-4 border-black">
       <h2 className="text-3xl font-extrabold text-black text-center mb-6" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-        CREATE YOUR ACCOUNT
+        {t("SignTitle")}
       </h2>
       
       {/* The main sign-up form */}
@@ -70,7 +107,7 @@ const SignPage = () => {
             htmlFor="username" 
             className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
           >
-            Username
+            {t("username")}
           </label>
           <div className="mt-1">
             <input
@@ -92,7 +129,7 @@ const SignPage = () => {
             htmlFor="email" 
             className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
           >
-            Email
+            {t("email")}
           </label>
           <div className="mt-1">
             <input
@@ -114,7 +151,7 @@ const SignPage = () => {
             htmlFor="password" 
             className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
           >
-            Password
+            {t("password")}
           </label>
           <div className="mt-1">
             <input
@@ -136,18 +173,18 @@ const SignPage = () => {
             type="submit"
             className="w-full flex justify-center py-2 px-4 border-2 border-black rounded-lg shadow-lg text-lg font-bold text-white bg-[#8080FF] hover:bg-[#A0A0FF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8080FF] transition-colors"
           >
-            Sign Up
+            {t("signinButton")}
           </button>
         </div>
       </form>
 
-      {/* A simple link to the sign-up page */}
+      {/* A simple link to the Log-in page */}
       <div className="mt-4 text-center text-sm">
         <span className="text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          Already have an account? 
+          {t("accountver")}
         </span>
         <a href="http://localhost:3000/Login" className="font-bold text-[#8080FF] hover:underline" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          Log In
+          {t("login")}
         </a>
       </div>
       
@@ -157,6 +194,21 @@ const SignPage = () => {
           {message}
         </div>
       )}
+      {/* Language Switcher */}
+      <div className='mt-4 flex justify-center gap-2'>
+        <button 
+          onClick={() => changeLanguage("en")} 
+          className={`px-3 py-1 border rounded ${currentLang === 'en' ? 'bg-blue-200' : ''}`}
+        >
+          English
+        </button>  
+        <button 
+          onClick={() => changeLanguage("ja")} 
+          className={`px-3 py-1 border rounded ${currentLang === 'ja' ? 'bg-blue-200' : ''}`}
+        >
+          日本語
+        </button>   
+      </div>
     </div>
   );
 };
