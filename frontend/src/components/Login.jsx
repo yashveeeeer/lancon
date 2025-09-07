@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
-
-// The main App component that renders the LoginPage.
-const App = () => {
-  return (
-    <div className="bg-[#E4E3E5] min-h-screen flex items-center justify-center p-4">
-      <LoginPage />
-    </div>
-  );
-};
 
 // Translation object
 const translations = {
   en: {
+    appTitle: "LANCON Voice",
+    lightMode: "☀️ Light",
+    darkMode: "🌙 Dark",
     loginTitle: "Login",
+    subtitle: "Sign in to your account",
     username: "Username",
     password: "Password", 
     loginButton: "Login",
@@ -22,7 +17,11 @@ const translations = {
     accountexp: "Don't have an account?"
   },
   ja: {
+    appTitle: "LANCON Voice",
+    lightMode: "☀️ ライト", 
+    darkMode: "🌙 ダーク",
     loginTitle: "ログイン",
+    subtitle: "アカウントにサインイン",
     username: "ユーザー名",
     password: "パスワード",
     loginButton: "ログイン", 
@@ -39,10 +38,12 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [currentLang, setCurrentLang] = useState('en');
+  const [darkMode, setDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Simple translation function
-  const t = (key) => translations[currentLang][key] || key;
+  // Translation function - memoized to fix React Hook warning
+  const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
 
   // Language change function
   const changeLanguage = (lang) => {
@@ -54,6 +55,7 @@ const LoginPage = () => {
     // Prevent the form from reloading the page.
     event.preventDefault();
     setMessage(t("loggingIn"));
+    setIsLoading(true);
     
     try {
       // Send the data to your FastAPI backend's login endpoint.
@@ -72,7 +74,7 @@ const LoginPage = () => {
       if (response.ok) {
         setMessage('Login successful!');
         // You can save the token here for future use, but for now we'll just log it.
-        localStorage.setItem("access_token",data.access_token)
+        localStorage.setItem("access_token", data.access_token);
         // Clear form fields on success
         setUsername('');
         setPassword('');
@@ -84,105 +86,174 @@ const LoginPage = () => {
     } catch (error) {
       // Handle network or other errors.
       setMessage(`Network error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md bg-[#D4D3D4] p-8 rounded-lg shadow-xl border-4 border-black">
-      <h2 className="text-3xl font-extrabold text-black text-center mb-6" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-        {t("loginTitle")}
-      </h2>
-      
-      {/* The main login form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label 
-            htmlFor="username" 
-            className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
-          >
-            {t("username")}
-          </label>
-          <div className="mt-1">
-            <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="appearance-none block w-full px-3 py-2 border-2 border-black rounded-lg shadow-sm placeholder-gray-500 bg-[#E4E3E5] text-black focus:outline-none focus:ring-[#8080FF] focus:border-[#8080FF] sm:text-sm"
-              placeholder="Enter your username"
-            />
+    <div className={`${darkMode ? "dark" : ""}`}>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors p-4">
+        <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-2xl overflow-hidden text-gray-900 dark:text-gray-100 transition-colors">
+          
+          {/* Header */}
+          <div className="flex justify-between items-center bg-indigo-600 dark:bg-indigo-700 px-6 py-4">
+            <h1 className="text-xl font-bold text-white tracking-wide">
+              {t("appTitle")}
+            </h1>
+            <div className="flex gap-2">
+              <button
+                className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30 transition-colors"
+                onClick={() => setDarkMode(!darkMode)}
+              >
+                {darkMode ? t("lightMode") : t("darkMode")}
+              </button>
+            </div>
+          </div>
+
+          {/* Language Switcher */}
+          <div className="flex justify-center gap-2 p-3 bg-gray-50 dark:bg-gray-700">
+            <button 
+              onClick={() => changeLanguage("en")} 
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
+                currentLang === 'en' 
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+                  : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
+              }`}
+            >
+              English
+            </button>  
+            <button 
+              onClick={() => changeLanguage("ja")} 
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
+                currentLang === 'ja' 
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+                  : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
+              }`}
+            >
+              日本語
+            </button>   
+          </div>
+
+          {/* Main Content */}
+          <div className="p-6 space-y-6">
+            
+            {/* Title and Subtitle */}
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {t("loginTitle")}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 text-base">
+                {t("subtitle")}
+              </p>
+            </div>
+
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              
+              {/* Username Field */}
+              <div>
+                <label 
+                  htmlFor="username" 
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  {t("username")}
+                </label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  placeholder="Enter your username"
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label 
+                  htmlFor="password" 
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  {t("password")}
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  placeholder="Enter your password"
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Login Button */}
+              <div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>{t("loggingIn")}</span>
+                    </div>
+                  ) : (
+                    t("loginButton")
+                  )}
+                </button>
+              </div>
+            </form>
+            
+            {/* Display message */}
+            {message && (
+              <div className="text-center">
+                <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
+                  message.startsWith('Error') || message.startsWith('Network') 
+                    ? 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800' 
+                    : 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800'
+                }`}>
+                  {message.startsWith('Error') || message.startsWith('Network') ? (
+                    <span className="mr-2">⚠️</span>
+                  ) : (
+                    <span className="mr-2">✅</span>
+                  )}
+                  {message}
+                </div>
+              </div>
+            )}
+
+            {/* Sign up link */}
+            <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {t("accountexp")}{' '}
+                <a 
+                  href="http://localhost:3000/Signup" 
+                  className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                >
+                  {t("signup")}
+                </a>
+              </p>
+            </div>
           </div>
         </div>
-
-        <div>
-          <label 
-            htmlFor="password" 
-            className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
-          >
-            {t("password")}
-          </label>
-          <div className="mt-1">
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="appearance-none block w-full px-3 py-2 border-2 border-black rounded-lg shadow-sm placeholder-gray-500 bg-[#E4E3E5] text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8080FF] sm:text-sm"
-              placeholder="Enter your password"
-            />
-          </div>
-        </div>
-
-        <div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border-2 border-black rounded-lg shadow-lg text-lg font-bold text-white bg-[#8080FF] hover:bg-[#A0A0FF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8080FF] transition-colors"
-          >
-            {t("loginButton")}
-          </button>
-        </div>
-      </form>
-      
-      {/* Display a message to the user if one exists. */}
-      {message && (
-        <div className={`mt-6 text-center text-sm font-bold ${message.startsWith('Error') ? 'text-red-600' : 'text-blue-600'}`}>
-          {message}
-        </div>
-      )}
-
-      {/* A simple link to the sign-up page */}
-      <div className="mt-4 text-center text-sm">
-        <span className="text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          {t("accountexp")} 
-        </span>
-        <a href="http://localhost:3000/Signup" className="font-bold text-[#8080FF] hover:underline" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          {t("signup")}
-        </a>
-      </div>
-
-      {/* Language Switcher */}
-      <div className='mt-4 flex justify-center gap-2'>
-        <button 
-          onClick={() => changeLanguage("en")} 
-          className={`px-3 py-1 border rounded ${currentLang === 'en' ? 'bg-blue-200' : ''}`}
-        >
-          English
-        </button>  
-        <button 
-          onClick={() => changeLanguage("ja")} 
-          className={`px-3 py-1 border rounded ${currentLang === 'ja' ? 'bg-blue-200' : ''}`}
-        >
-          日本語
-        </button>   
       </div>
     </div>
   );
+};
+
+// The main App component that renders the LoginPage.
+const App = () => {
+  return <LoginPage />;
 };
 
 export default App;

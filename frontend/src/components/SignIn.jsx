@@ -1,39 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
-// The main App component that renders the SignPage.
-const App = () => {
-  return (
-    <div className="bg-[#E4E3E5] min-h-screen flex items-center justify-center p-4">
-      <SignPage />
-    </div>
-  );
-};
 // Translation object
-
 const translations = {
   en: {
-    SignTitle: "CREATE YOUR ACCOUNT",
+    appTitle: "LANCON",
+    signTitle: "Create Your Account",
+    lightMode: "☀️ Light",
+    darkMode: "🌙 Dark",
     username: "Username",
-    email:"Email",
+    email: "Email",
     password: "Password", 
     signinButton: "Sign Up",
     login: "Log In",
-    SigningIn: "Signing in...",
-    accountver:"Already have an account?",
-    processing:"Processing...",
-    registration:"Registration successful!"
+    accountver: "Already have an account?",
+    processing: "Processing...",
+    registration: "Registration successful!",
+    usernamePlaceholder: "Choose a username",
+    emailPlaceholder: "Your email address",
+    passwordPlaceholder: "Create a strong password"
   },
   ja: {
-    SignTitle: "アカウントを作成する",
+    appTitle: "LANCON",
+    signTitle: "アカウントを作成する",
+    lightMode: "☀️ ライト",
+    darkMode: "🌙 ダーク",
     username: "ユーザー名",
-    email:"メールアドレス",
+    email: "メールアドレス",
     password: "パスワード",
     signinButton: "サインアップ",
     login: "ログイン",
-    SigningIn: "サインイン中...",
-    accountver:"すでにアカウントをお持ちですか？",
-    processing:"処理中...",
-    registration:"登録が完了しました！"
+    accountver: "すでにアカウントをお持ちですか？",
+    processing: "処理中...",
+    registration: "登録が完了しました！",
+    usernamePlaceholder: "ユーザー名を選択してください",
+    emailPlaceholder: "メールアドレスを入力してください",
+    passwordPlaceholder: "強力なパスワードを作成してください"
   }
 };
 
@@ -42,26 +43,27 @@ const SignPage = () => {
   // State variables to store the user's input.
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState(''); // Added email state
+  const [email, setEmail] = useState('');
   const [currentLang, setCurrentLang] = useState('en');
+  const [darkMode, setDarkMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // State for a message to the user after form submission.
   const [message, setMessage] = useState('');
 
-  // Translation Function
-  const t = (key)=> translations[currentLang][key] || key;
+  // Translation Function - memoized to prevent unnecessary re-renders
+  const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
 
   // Language change Function
-  const changeLanguage = (lang)=>{
+  const changeLanguage = (lang) => {
     setCurrentLang(lang);
-  }
+  };
 
   // Handles the form submission event.
-  // It prevents the default browser behavior and sends data to the backend.
   const handleSubmit = async (event) => {
-    // Prevent the form from reloading the page.
     event.preventDefault();
     
+    setIsLoading(true);
     setMessage(t("processing"));
     
     try {
@@ -71,7 +73,7 @@ const SignPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password, email }), // Sent email as well
+        body: JSON.stringify({ username, password, email }),
       });
 
       // Get the JSON data from the response.
@@ -91,126 +93,192 @@ const SignPage = () => {
     } catch (error) {
       // Handle network or other errors.
       setMessage(`Network error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md bg-[#D4D3D4] p-8 rounded-lg shadow-xl border-4 border-black">
-      <h2 className="text-3xl font-extrabold text-black text-center mb-6" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-        {t("SignTitle")}
-      </h2>
-      
-      {/* The main sign-up form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label 
-            htmlFor="username" 
-            className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
-          >
-            {t("username")}
-          </label>
-          <div className="mt-1">
-            <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="appearance-none block w-full px-3 py-2 border-2 border-black rounded-lg shadow-sm placeholder-gray-500 bg-[#E4E3E5] text-black focus:outline-none focus:ring-[#8080FF] focus:border-[#8080FF] sm:text-sm"
-              placeholder="Choose a username"
-            />
+    <div className={`${darkMode ? "dark" : ""}`}>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors p-4">
+        <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-2xl overflow-hidden text-gray-900 dark:text-gray-100 transition-colors">
+          
+          {/* Header */}
+          <div className="flex justify-between items-center bg-indigo-600 dark:bg-indigo-700 px-6 py-4">
+            <h1 className="text-xl font-bold text-white tracking-wide">
+              {t("appTitle")}
+            </h1>
+            <div className="flex gap-2">
+              <button
+                className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30 transition-colors"
+                onClick={() => setDarkMode(!darkMode)}
+              >
+                {darkMode ? t("lightMode") : t("darkMode")}
+              </button>
+            </div>
+          </div>
+
+          {/* Language Switcher */}
+          <div className="flex justify-center gap-2 p-3 bg-gray-50 dark:bg-gray-700">
+            <button 
+              onClick={() => changeLanguage("en")} 
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
+                currentLang === 'en' 
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+                  : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
+              }`}
+            >
+              English
+            </button>  
+            <button 
+              onClick={() => changeLanguage("ja")} 
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
+                currentLang === 'ja' 
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+                  : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
+              }`}
+            >
+              日本語
+            </button>   
+          </div>
+
+          {/* Main Content */}
+          <div className="p-6">
+            
+            {/* Title */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl mb-4">
+                <span className="text-2xl">👤</span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {t("signTitle")}
+              </h2>
+            </div>
+            
+            {/* Sign-up Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* Username Field */}
+              <div>
+                <label 
+                  htmlFor="username" 
+                  className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  {t("username")}
+                </label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  placeholder={t("usernamePlaceholder")}
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Email Field */}
+              <div>
+                <label 
+                  htmlFor="email" 
+                  className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  {t("email")}
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  placeholder={t("emailPlaceholder")}
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label 
+                  htmlFor="password" 
+                  className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  {t("password")}
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  placeholder={t("passwordPlaceholder")}
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {t("processing")}
+                  </>
+                ) : (
+                  t("signinButton")
+                )}
+              </button>
+            </form>
+
+            {/* Login Link */}
+            <div className="mt-6 text-center">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {t("accountver")}{" "}
+              </span>
+              <a 
+                href="http://localhost:3000/Login" 
+                className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+              >
+                {t("login")}
+              </a>
+            </div>
+            
+            {/* Message Display */}
+            {message && (
+              <div className={`mt-4 p-3 rounded-lg text-sm text-center font-medium ${
+                message.startsWith('Error') || message.includes('Network error')
+                  ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800' 
+                  : message === t("processing")
+                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
+                  : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800'
+              }`}>
+                {message}
+              </div>
+            )}
           </div>
         </div>
-
-        <div>
-          <label 
-            htmlFor="email" 
-            className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
-          >
-            {t("email")}
-          </label>
-          <div className="mt-1">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="appearance-none block w-full px-3 py-2 border-2 border-black rounded-lg shadow-sm placeholder-gray-500 bg-[#E4E3E5] text-black focus:outline-none focus:ring-[#8080FF] focus:border-[#8080FF] sm:text-sm"
-              placeholder="Your email address"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label 
-            htmlFor="password" 
-            className="block text-sm font-bold text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}
-          >
-            {t("password")}
-          </label>
-          <div className="mt-1">
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="appearance-none block w-full px-3 py-2 border-2 border-black rounded-lg shadow-sm placeholder-gray-500 bg-[#E4E3E5] text-black focus:outline-none focus:ring-[#8080FF] focus:border-[#8080FF] sm:text-sm"
-              placeholder="Create a strong password"
-            />
-          </div>
-        </div>
-
-        <div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border-2 border-black rounded-lg shadow-lg text-lg font-bold text-white bg-[#8080FF] hover:bg-[#A0A0FF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8080FF] transition-colors"
-          >
-            {t("signinButton")}
-          </button>
-        </div>
-      </form>
-
-      {/* A simple link to the Log-in page */}
-      <div className="mt-4 text-center text-sm">
-        <span className="text-black" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          {t("accountver")}
-        </span>
-        <a href="http://localhost:3000/Login" className="font-bold text-[#8080FF] hover:underline" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
-          {t("login")}
-        </a>
-      </div>
-      
-      {/* Display a message to the user if one exists. */}
-      {message && (
-        <div className={`mt-6 text-center text-sm font-bold ${message.startsWith('Error') ? 'text-red-600' : 'text-blue-600'}`}>
-          {message}
-        </div>
-      )}
-      {/* Language Switcher */}
-      <div className='mt-4 flex justify-center gap-2'>
-        <button 
-          onClick={() => changeLanguage("en")} 
-          className={`px-3 py-1 border rounded ${currentLang === 'en' ? 'bg-blue-200' : ''}`}
-        >
-          English
-        </button>  
-        <button 
-          onClick={() => changeLanguage("ja")} 
-          className={`px-3 py-1 border rounded ${currentLang === 'ja' ? 'bg-blue-200' : ''}`}
-        >
-          日本語
-        </button>   
       </div>
     </div>
   );
+};
+
+// The main App component that renders the SignPage.
+const App = () => {
+  return <SignPage />;
 };
 
 export default App;

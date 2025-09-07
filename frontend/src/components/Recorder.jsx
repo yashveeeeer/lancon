@@ -1,7 +1,41 @@
 // src/components/Recorder.jsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { RecorderModel } from '../models/recorderModel';
 import { useNavigate } from 'react-router-dom';
+
+// Translation object for Recorder component
+const translations = {
+  en: {
+    appTitle: "LANCON Voice",
+    lightMode: "☀️ Light",
+    darkMode: "🌙 Dark",
+    subtitle: "Real-time speech translation powered by AI",
+    recordingInProgress: "Recording in progress...",
+    readyToRecord: "Ready to record",
+    englishLabel: "English",
+    japaneseLabel: "Japanese",
+    audioLabel: "Audio",
+    continueToChat: "Continue to Chat",
+    audioNotSupported: "Your browser does not support the audio tag.",
+    invalidDataReceived: "[Invalid data received]",
+    errorParsingResponse: "[Error parsing response]"
+  },
+  ja: {
+    appTitle: "LANCON Voice",
+    lightMode: "☀️ ライト",
+    darkMode: "🌙 ダーク",
+    subtitle: "AIによるリアルタイム音声翻訳",
+    recordingInProgress: "録音中...",
+    readyToRecord: "録音準備完了",
+    englishLabel: "英語",
+    japaneseLabel: "日本語", 
+    audioLabel: "音声",
+    continueToChat: "チャットに進む",
+    audioNotSupported: "お使いのブラウザは音声タグをサポートしていません。",
+    invalidDataReceived: "[無効なデータを受信しました]",
+    errorParsingResponse: "[レスポンス解析エラー]"
+  }
+};
 
 const Recorder = () => {
   const navigate = useNavigate();
@@ -10,6 +44,16 @@ const Recorder = () => {
   const [data, setData] = useState(null);
   const [audioKey, setAudioKey] = useState(0);
   const [audioLevels, setAudioLevels] = useState(Array(12).fill(0));
+  const [currentLang, setCurrentLang] = useState('en'); // Language state
+  const [darkMode, setDarkMode] = useState(false); // theme toggle
+
+  // Translation function - memoized to fix React Hook warning
+  const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
+
+  // Language change function
+  const changeLanguage = (lang) => {
+    setCurrentLang(lang);
+  };
 
   useEffect(() => {
     let animationFrame;
@@ -41,7 +85,7 @@ const Recorder = () => {
         } else {
           console.warn("Unexpected response format:", parsed);
           setData({
-            english_text: "[Invalid data received]",
+            english_text: t("invalidDataReceived"),
             japanese_text: "",
             japanese_audio: ""
           });
@@ -51,13 +95,13 @@ const Recorder = () => {
       } catch (err) {
         console.error("Error parsing backend data:", err);
         setData({
-          english_text: "[Error parsing response]",
+          english_text: t("errorParsingResponse"),
           japanese_text: "",
           japanese_audio: ""
         });
       }
     });
-  }, []);
+  }, [t]); // Fixed: Added 't' to dependency array
 
   const handleStart = async () => {
     const success = await modelRef.current.init();
@@ -78,134 +122,166 @@ const Recorder = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 py-8">
-        <header className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl mb-6">
-            <span className="text-2xl">🎙️</span>
-          </div>
-          <h1 className="text-5xl font-black text-white mb-4 tracking-tight">
-            Voice<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">AI</span>
-          </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Real-time speech translation powered by AI
-          </p>
-        </header>
-
-        <div className="max-w-4xl mx-auto space-y-12">
-          {/* Recording interface */}
-          <div className="flex flex-col items-center space-y-8">
-            {/* Audio visualizer */}
-            <div className="flex items-end justify-center space-x-1 h-24">
-              {audioLevels.map((level, i) => (
-                <div
-                  key={i}
-                  className={`w-1.5 bg-gradient-to-t from-purple-500 to-pink-400 rounded-full transition-all duration-75 ${
-                    isRecording ? 'opacity-100' : 'opacity-30'
-                  }`}
-                  style={{
-                    height: isRecording ? `${20 + level * 0.6}px` : '20px',
-                    transitionDelay: `${i * 20}ms`
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Record button */}
-            <div className="relative">
-              {isRecording && (
-                <div className="absolute inset-0 animate-ping">
-                  <div className="w-full h-full rounded-full bg-red-400 opacity-75"></div>
-                </div>
-              )}
+    <div className={`${darkMode ? "dark" : ""}`}>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors p-4">
+        <div className="w-full max-w-2xl bg-white dark:bg-gray-800 shadow-lg rounded-2xl overflow-hidden text-gray-900 dark:text-gray-100 transition-colors">
+          
+          {/* Header */}
+          <div className="flex justify-between items-center bg-indigo-600 dark:bg-indigo-700 px-6 py-4">
+            <h1 className="text-xl font-bold text-white tracking-wide">
+              {t("appTitle")}
+            </h1>
+            <div className="flex gap-2">
               <button
-                onClick={isRecording ? handleStop : handleStart}
-                className={`relative w-24 h-24 rounded-full font-semibold text-white transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 ${
-                  isRecording
-                    ? 'bg-red-500 hover:bg-red-600 focus:ring-red-500/50 shadow-lg shadow-red-500/25'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:ring-purple-500/50 shadow-lg shadow-purple-500/25'
-                }`}
+                className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30 transition-colors"
+                onClick={() => setDarkMode(!darkMode)}
               >
-                <span className="text-2xl">
-                  {isRecording ? '⏹️' : '🎤'}
-                </span>
+                {darkMode ? t("lightMode") : t("darkMode")}
               </button>
             </div>
-
-            {/* Status text */}
-            <div className="text-center">
-              <p className={`text-lg font-medium transition-colors ${
-                isRecording ? 'text-red-400' : 'text-slate-400'
-              }`}>
-                {isRecording ? 'Recording in progress...' : 'Ready to record'}
-              </p>
-            </div>
           </div>
 
-          {/* Translated Results */}
-          {data && (
-            <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <span className="text-sm">🇺🇸</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-white">English</h3>
-                </div>
-                <p className="text-slate-200 text-lg leading-relaxed">
-                  {data?.english_text}
-                </p>
-              </div>
-
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center">
-                    <span className="text-sm">🇯🇵</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-white">Japanese</h3>
-                </div>
-                <p className="text-slate-200 text-2xl font-bold leading-relaxed font-mono">
-                  {data?.japanese_text}
-                </p>
-              </div>
-
-              {audioSrc && (
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                      <span className="text-sm">🔊</span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-white">Audio</h3>
-                  </div>
-                  <audio 
-                    key={audioKey}
-                    controls
-                    className="w-full h-12 bg-slate-800 rounded-lg"
-                  >
-                    <source src={audioSrc} type="audio/mp3" />
-                    <source src={audioSrc} type="audio/mpeg" />
-                    Your browser does not support the audio tag.
-                  </audio>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Navigation */}
-          <div className="flex justify-center pt-8">
-            <button
-              onClick={() => navigate('/ws/chat')}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-sm"
+          {/* Language Switcher */}
+          <div className="flex justify-center gap-2 p-3 bg-gray-50 dark:bg-gray-700">
+            <button 
+              onClick={() => changeLanguage("en")} 
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
+                currentLang === 'en' 
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+                  : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
+              }`}
             >
-              <span>💬</span>
-              <span>Continue to Chat</span>
-            </button>
+              English
+            </button>  
+            <button 
+              onClick={() => changeLanguage("ja")} 
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
+                currentLang === 'ja' 
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+                  : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
+              }`}
+            >
+              日本語
+            </button>   
+          </div>
+
+          {/* Main Content */}
+          <div className="p-6 space-y-6">
+            
+            {/* Subtitle */}
+            <div className="text-center">
+              <p className="text-gray-600 dark:text-gray-300 text-base">
+                {t("subtitle")}
+              </p>
+            </div>
+
+            {/* Recording Interface */}
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 transition-colors">
+              
+              {/* Audio Visualizer */}
+              <div className="flex items-end justify-center space-x-1 h-20 mb-6">
+                {audioLevels.map((level, i) => (
+                  <div
+                    key={i}
+                    className={`w-2 bg-gradient-to-t from-indigo-500 to-purple-400 rounded-full transition-all duration-75 ${
+                      isRecording ? 'opacity-100' : 'opacity-30'
+                    }`}
+                    style={{
+                      height: isRecording ? `${20 + level * 0.5}px` : '20px',
+                      transitionDelay: `${i * 20}ms`
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Record Button */}
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative">
+                  {isRecording && (
+                    <div className="absolute inset-0 animate-ping">
+                      <div className="w-full h-full rounded-full bg-red-400 opacity-75"></div>
+                    </div>
+                  )}
+                  <button
+                    onClick={isRecording ? handleStop : handleStart}
+                    className={`relative w-20 h-20 rounded-full font-semibold text-white transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 ${
+                      isRecording
+                        ? 'bg-red-500 hover:bg-red-600 focus:ring-red-500/50 shadow-lg'
+                        : 'bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-500/50 shadow-lg'
+                    }`}
+                  >
+                    <span className="text-2xl">
+                      {isRecording ? '⏹️' : '🎤'}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Status Text */}
+                <p className={`text-sm font-medium transition-colors ${
+                  isRecording ? 'text-red-500 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                }`}>
+                  {isRecording ? t("recordingInProgress") : t("readyToRecord")}
+                </p>
+              </div>
+            </div>
+
+            {/* Results */}
+            {data && (
+              <div className="space-y-4">
+                
+                {/* English Result */}
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border-l-4 border-blue-500 transition-colors">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-lg">🇺🇸</span>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{t("englishLabel")}</h3>
+                  </div>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {data?.english_text}
+                  </p>
+                </div>
+
+                {/* Japanese Result */}
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border-l-4 border-pink-500 transition-colors">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-lg">🇯🇵</span>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{t("japaneseLabel")}</h3>
+                  </div>
+                  <p className="text-gray-700 dark:text-gray-300 text-lg font-medium leading-relaxed">
+                    {data?.japanese_text}
+                  </p>
+                </div>
+
+                {/* Audio Result */}
+                {audioSrc && (
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border-l-4 border-purple-500 transition-colors">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-lg">🔊</span>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{t("audioLabel")}</h3>
+                    </div>
+                    <audio 
+                      key={audioKey}
+                      controls
+                      className="w-full h-10 bg-white dark:bg-gray-800 rounded-lg"
+                    >
+                      <source src={audioSrc} type="audio/mp3" />
+                      <source src={audioSrc} type="audio/mpeg" />
+                      {t("audioNotSupported")}
+                    </audio>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Navigation */}
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={() => navigate('/ws/chat')}
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              >
+                <span>💬</span>
+                <span>{t("continueToChat")}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
