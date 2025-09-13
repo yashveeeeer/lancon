@@ -26,6 +26,12 @@ async def register(user_data: dict = Body(...)):
             detail="Username already registered"
         )
     
+    if await user_collection.find_one({"email": email}):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="email already registered"
+        )
+    
     hashed_password = get_password_hash(password)
     user_in_db = UserInDB(
         username=username,
