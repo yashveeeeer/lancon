@@ -8,6 +8,7 @@ const translations = {
     lightMode: "☀️ Light",
     darkMode: "🌙 Dark",
     username: "Username",
+    fullname: "Full name",
     email: "Email",
     password: "Password", 
     signinButton: "Sign Up",
@@ -16,6 +17,7 @@ const translations = {
     processing: "Processing...",
     registration: "Registration successful!",
     usernamePlaceholder: "Choose a username",
+    fullnamePlaceholder: "Choose a full name",
     emailPlaceholder: "Your email address",
     passwordPlaceholder: "Create a strong password"
   },
@@ -25,6 +27,7 @@ const translations = {
     lightMode: "☀️ ライト",
     darkMode: "🌙 ダーク",
     username: "ユーザー名",
+    fullname:"フルネーム",
     email: "メールアドレス",
     password: "パスワード",
     signinButton: "サインアップ",
@@ -33,6 +36,7 @@ const translations = {
     processing: "処理中...",
     registration: "登録が完了しました！",
     usernamePlaceholder: "ユーザー名を選択してください",
+    fullnamePlaceholder: "フルネームを選んでください",
     emailPlaceholder: "メールアドレスを入力してください",
     passwordPlaceholder: "強力なパスワードを作成してください"
   }
@@ -42,6 +46,7 @@ const translations = {
 const SignPage = () => {
   // State variables to store the user's input.
   const [username, setUsername] = useState('');
+  const [fullname,setFullname] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [currentLang, setCurrentLang] = useState('en');
@@ -73,7 +78,7 @@ const SignPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password, email }),
+        body: JSON.stringify({ username, fullname, password, email }),
       });
 
       // Get the JSON data from the response.
@@ -83,6 +88,7 @@ const SignPage = () => {
       if (response.ok) {
         setMessage(t("registration"));
         // Reset the form fields on success.
+        setFullname('');
         setUsername('');
         setPassword('');
         setEmail('');
@@ -176,6 +182,28 @@ const SignPage = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder={t("usernamePlaceholder")}
+                  disabled={isLoading}
+                />
+              </div>
+
+              {/* fullname Field */}
+              <div>
+                <label 
+                  htmlFor="fullname" 
+                  className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  {t("fullname")}
+                </label>
+                <input
+                  id="fullname"
+                  name="fullname"
+                  type="text"
+                  autoComplete="fullname"
+                  required
+                  value={fullname}
+                  onChange={(e) => setFullname(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  placeholder={t("fullnamePlaceholder")}
                   disabled={isLoading}
                 />
               </div>

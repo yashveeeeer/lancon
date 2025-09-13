@@ -10,10 +10,13 @@ from datetime import timedelta
 router = APIRouter(prefix="/users", tags=["users"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
+
+# User Registration Endpoint
 @router.post("/register", response_description="Register a new user", status_code=status.HTTP_201_CREATED, response_model=dict)
 async def register(user_data: dict = Body(...)):
     """Handles new user registration."""
     username = user_data.get("username")
+    fullname = user_data.get("fullname")
     password = user_data.get("password")
     email = user_data.get("email")
 
@@ -32,11 +35,17 @@ async def register(user_data: dict = Body(...)):
             detail="email already registered"
         )
     
+    if await user_collection.find_one({"username":username}):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="username already present"
+        )
+    
     hashed_password = get_password_hash(password)
     user_in_db = UserInDB(
         username=username,
+        fullname=fullname,
         email=email,
-        full_name=None,
         hashed_password=hashed_password
     )
     
@@ -44,6 +53,8 @@ async def register(user_data: dict = Body(...)):
     
     return {"message": "User registered successfully"}
 
+
+# User Login Endpoint
 @router.post("/token", response_description="Login and get token", response_model=Token)
 async def login_for_access_token(user_data: dict = Body(...)):
     """Handles user login and returns a JWT token."""
@@ -65,6 +76,8 @@ async def login_for_access_token(user_data: dict = Body(...)):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+# Protected Endpoint to Get Current User
 @router.get("/me/", response_model=User)
 async def read_users_me(current_user: UserInDB = Depends(get_current_user_from_token)):
     """A protected endpoint to get the current user's details."""

@@ -1,5 +1,6 @@
 from fastapi import WebSocket
 
+# Connection Manager for WebSocket connections
 class ConnectionManager:
     def __init__(self):
         # Keep track of active users: user_id -> websocket

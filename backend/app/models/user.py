@@ -1,10 +1,12 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
+
+# User Models
 class User(BaseModel):
     username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    fullname: Optional[str] = None
 
 class UserInDB(User):
     hashed_password: str

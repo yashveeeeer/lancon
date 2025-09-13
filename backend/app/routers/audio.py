@@ -3,6 +3,8 @@ from app.translation.trans import Transcribe_audio
 
 router = APIRouter(tags=["audio"])
 
+
+# Audio Upload and Transcription Endpoint
 @router.post("/upload-audio")
 async def upload_audio(audiofile: UploadFile = File(...)):
     audio_bytes = await audiofile.read()

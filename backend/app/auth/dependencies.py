@@ -13,6 +13,8 @@ SECRET_KEY = os.environ.get("MONGO_URL", "SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
+# Authentication and Authorization Utilities
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 

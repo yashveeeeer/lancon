@@ -6,6 +6,8 @@ router = APIRouter(tags=["websocket"])
 
 manager = ConnectionManager()
 
+
+# WebSocket Endpoint for Real-time Chat
 @router.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
     await manager.connect(user_id, websocket)
