@@ -15,19 +15,15 @@ const translations = {
     signup: "Sign up",
     loggingIn: "Logging in...",
     accountexp: "Don't have an account?",
-    // Missing placeholder texts
     usernamePlaceholder: "Enter your username",
     passwordPlaceholder: "Enter your password",
-    // Missing success/error messages
     loginSuccessful: "Login successful!",
     somethingWentWrong: "Something went wrong.",
     networkError: "Network error:",
     error: "Error:",
-    // Additional helpful messages
     loadingText: "Please wait...",
     invalidCredentials: "Invalid username or password",
     serverError: "Server error occurred",
-    // Accessibility labels
     usernameFieldLabel: "Username input field",
     passwordFieldLabel: "Password input field", 
     loginButtonLabel: "Login button",
@@ -46,19 +42,15 @@ const translations = {
     signup: "サインアップ",
     loggingIn: "ログイン中...",
     accountexp: "アカウントをお持ちではありませんか？",
-    // Missing placeholder texts - translated
     usernamePlaceholder: "ユーザー名を入力してください",
     passwordPlaceholder: "パスワードを入力してください", 
-    // Missing success/error messages - translated
     loginSuccessful: "ログイン成功！",
     somethingWentWrong: "何か問題が発生しました。",
     networkError: "ネットワークエラー：",
     error: "エラー：",
-    // Additional helpful messages - translated
     loadingText: "お待ちください...",
     invalidCredentials: "ユーザー名またはパスワードが無効です",
     serverError: "サーバーエラーが発生しました",
-    // Accessibility labels - translated
     usernameFieldLabel: "ユーザー名入力フィールド",
     passwordFieldLabel: "パスワード入力フィールド",
     loginButtonLabel: "ログインボタン",
@@ -152,6 +144,8 @@ const LoginPage = () => {
         setMessage('');
         // You can save the token here for future use, but for now we'll just log it.
         localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("username",data.username);
+        navigate("/home")
         // Clear form fields on success
         setUsername('');
         setPassword('');

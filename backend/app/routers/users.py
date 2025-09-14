@@ -74,11 +74,11 @@ async def login_for_access_token(user_data: dict = Body(...)):
     access_token = create_access_token(
         data={"sub": user_in_db["username"]}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer","username":username}
 
 
 # Protected Endpoint to Get Current User
-@router.get("/me/", response_model=User)
+@router.get("/me", response_model=User)
 async def read_users_me(current_user: UserInDB = Depends(get_current_user_from_token)):
     """A protected endpoint to get the current user's details."""
     return current_user

@@ -6,6 +6,8 @@ import Socket from './components/socketss.jsx';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LogInPage from './components/Login.jsx';
 import ProtectedRoutes from './utils/ProtectedRoutes.jsx';
+import MessagingPage from './components/userPage.jsx'
+import ProfilePage from './components/profile.jsx';
 
 const router = createBrowserRouter([
   { path: '/', element: <LogInPage /> },
@@ -15,8 +17,11 @@ const router = createBrowserRouter([
   {
     element: <ProtectedRoutes />,
     children: [
+
+      {path:'/home',element:<MessagingPage/>},
       { path: '/recorder', element: <Recorder /> },
       { path: '/ws/chat', element: <Socket /> },
+      {path:'/profile',element:<ProfilePage/>},
     ],
   },
 ]);
