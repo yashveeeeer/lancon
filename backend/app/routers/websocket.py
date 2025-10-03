@@ -1,6 +1,9 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import json
 from app.chat.connection import ConnectionManager
+from app.database.connection import message_collection
+from app.database.connection import user_collection
+from datetime import datetime
 
 router = APIRouter(tags=["websocket"])
 
@@ -15,13 +18,31 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         while True:
             data = await websocket.receive_text()
             payload = json.loads(data)
-            target_user = payload.get("to")
-            message = payload.get("message")
+            
+            sender=user_id
+            receiver=payload.get("to")
+            text=payload.get("message")
 
-            if target_user and message:
+            #checking if receiver exists in users DB
+
+            user_in_db = await user_collection.find_one({"username":receiver})
+            if not user_in_db:
+                await websocket.send_json({"error":f"User{receiver} not found"})
+                continue
+
+            message_doc={
+                "sender":sender,
+                "receiver":receiver,
+                "text":text,
+                "timestamp":datetime.utcnow()
+            }
+
+            await message_collection.insert_one(message_doc)
+
+            if receiver and text:
                 await manager.send_personal_message(
-                    json.dumps({"from": user_id, "message": message}),
-                    target_user
+                    json.dumps({"from": user_id, "message": text}),
+                    receiver
                 )
     except WebSocketDisconnect:
         manager.disconnect(user_id)

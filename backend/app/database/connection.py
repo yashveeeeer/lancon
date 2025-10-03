@@ -14,6 +14,7 @@ DB_NAME = "LanCon"
 client = AsyncIOMotorClient(MONGO_URL, server_api=ServerApi('1'))
 database = client.get_database(DB_NAME) # This will use the database name from your URI
 user_collection = database.get_collection("users")
+message_collection = database.get_collection("messages")
 
 async def test_db_connection():
     """Sends a ping to confirm a successful connection."""

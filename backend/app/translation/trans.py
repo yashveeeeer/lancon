@@ -78,7 +78,7 @@ def eng_to_jap(english_text):
         if not english_text or not english_text.strip():
             return ""
             
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash-preview-09-2025")
         prompt = f"""Translate the following English text to Japanese.
 Return ONLY the Japanese translation. No explanation. No additional text.
 

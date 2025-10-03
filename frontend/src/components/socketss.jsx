@@ -35,6 +35,13 @@ const translations = {
 };
 
 function Chat() {
+  useEffect(() => {
+  const savedUser = localStorage.getItem("username");
+  if (savedUser) {
+    setUserId(savedUser); // auto-login
+  }
+}, []);
+
   const [userId, setUserId] = useState("");
   const [inputId, setInputId] = useState("");
   const [to, setTo] = useState(""); // recipient
@@ -55,7 +62,8 @@ function Chat() {
   useEffect(() => {
     if (!userId) return;
 
-    ws.current = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+    const token = localStorage.getItem("access_token");
+    ws.current = new WebSocket(`ws://localhost:8000/ws/${userId}?token=${token}`);
 
     ws.current.onmessage = (event) => {
       try {

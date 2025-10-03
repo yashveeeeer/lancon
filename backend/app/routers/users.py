@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Body, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from app.database.connection import user_collection
+import re
 
 
 from app.models.user import User, Token, UserInDB
@@ -9,6 +10,11 @@ from datetime import timedelta
 
 router = APIRouter(prefix="/users", tags=["users"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
+
+
+def is_valid_email(email: str) -> bool:
+    regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(regex, email) is not None
 
 
 # User Registration Endpoint
@@ -41,6 +47,20 @@ async def register(user_data: dict = Body(...)):
             detail="username already present"
         )
     
+    if(len(password)<6):
+       raise HTTPException(
+           status_code=status.HTTP_409_CONFLICT,
+           detail="password should be atleast 6 characters"
+       )
+    
+    if(is_valid_email(email)):
+        pass
+    else:
+        return HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+           detail="enter a valid email"
+        )
+
     hashed_password = get_password_hash(password)
     user_in_db = UserInDB(
         username=username,
