@@ -4,7 +4,7 @@ from app.chat.connection import ConnectionManager
 from app.database.connection import message_collection
 from app.database.connection import user_collection
 from datetime import datetime
-
+from fastapi import APIRouter, Depends
 router = APIRouter(tags=["websocket"])
 
 manager = ConnectionManager()

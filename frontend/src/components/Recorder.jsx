@@ -21,7 +21,8 @@ const translations = {
     errorParsingResponse: "[Error parsing response]",
     playAudio: "Play Audio",
     pauseAudio: "Pause Audio",
-    audioError: "Audio playback error"
+    audioError: "Audio playback error",
+    signout:"SignOut"
   },
   ja: {
     appTitle: "LANCON Voice",
@@ -39,7 +40,8 @@ const translations = {
     errorParsingResponse: "[レスポンス解析エラー]",
     playAudio: "音声再生",
     pauseAudio: "音声停止",
-    audioError: "音声再生エラー"
+    audioError: "音声再生エラー",
+    signout:"ログアウト"
   }
 };
 
@@ -392,8 +394,22 @@ const Recorder = () => {
       })()
     : null;
 
+  const handleSignOut=()=>{
+    console.log(localStorage)
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  }
+
   return (
     <div className={`${darkMode ? "dark" : ""} min-h-screen`}>
+      <div className="sticky top-0 z-20 p-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-md backdrop-blur-md">
+            <button 
+            onClick={handleSignOut}
+            className="px-4 py-2 bg-indigo-600 hover:bg-red-500 text-white font-medium rounded-lg transition">
+              {t("signout")}
+            </button>
+      </div>
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors p-4">
         <div className="w-full max-w-2xl bg-white dark:bg-gray-800 shadow-lg rounded-2xl overflow-hidden text-gray-900 dark:text-gray-100 transition-colors">
           
