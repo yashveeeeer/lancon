@@ -52,7 +52,9 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [darkMode, setDarkMode] = useState(false); // theme toggle
   const [currentLang, setCurrentLang] = useState('en'); // Language state
+  const [isOn, setIsOn] = useState(false);
   const ws = useRef(null);
+  var lang = false;
 
   // Translation function - moved outside of useEffect dependency
   const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
@@ -61,6 +63,30 @@ function Chat() {
   const changeLanguage = (lang) => {
     setCurrentLang(lang);
   };
+
+
+  function ToggleButton({enabled,onToggle}) {
+    if(enabled)
+    {
+      lang = true;
+    }
+  
+    return(
+      <button
+      onClick={onToggle}
+      className={`relative flex h-5 w-10 cursor-pointer items-center rounded-full p-0.5 transition-colors duration-300 ease-in-out ${
+        enabled ? "bg-blue-500" : "bg-gray-400"
+      }`}
+    >
+      <span
+        className={`h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${
+          enabled ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+    )
+  }
+
 
   useEffect(() => {
     if (!userId) return;
@@ -92,7 +118,7 @@ function Chat() {
       message.trim() &&
       to.trim()
     ) {
-      ws.current.send(JSON.stringify({ to, message }));
+      ws.current.send(JSON.stringify({ to, message, lang}));
       setMessages((prev) => [...prev, `${t("youTo")} ${to}: ${message}`]);
       setMessage("");
     }
@@ -155,6 +181,15 @@ function Chat() {
                 >
                   日本語
                 </button>   
+              </div> 
+
+               {/* 🔹 Language Switcher - To send text in different Language */}
+              <div className="flex items-center justify-center space-x-3">
+                <span className="text-gray-800">Send in Japanese</span>
+                <ToggleButton 
+                  enabled={isOn} 
+                  onToggle={() => setIsOn(!isOn)} 
+                />
               </div>
 
               {/* 🔹 Chat body */}

@@ -5,6 +5,8 @@ from app.database.connection import message_collection
 from app.database.connection import user_collection
 from datetime import datetime
 from fastapi import APIRouter, Depends
+from app.translation.trans import eng_to_jap
+# from app.translation.trans import english_to_japan
 router = APIRouter(tags=["websocket"])
 
 manager = ConnectionManager()
@@ -22,6 +24,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             sender=user_id
             receiver=payload.get("to")
             text=payload.get("message")
+            changer=payload.get("lang")
 
             #checking if receiver exists in users DB
 
@@ -39,11 +42,20 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 
             await message_collection.insert_one(message_doc)
 
-            if receiver and text:
-                await manager.send_personal_message(
-                    json.dumps({"from": user_id, "message": text}),
-                    receiver
-                )
+            if changer:
+                if receiver and text:
+                    new_text = eng_to_jap(text)
+                    await manager.send_personal_message(
+                        json.dumps({"from": user_id, "message": new_text}),
+                        receiver
+                    )
+            else:
+                if receiver and text:
+                    await manager.send_personal_message(
+                        json.dumps({"from": user_id, "message": text}),
+                        receiver
+                    )
+
     except WebSocketDisconnect:
         manager.disconnect(user_id)
     except Exception as e:

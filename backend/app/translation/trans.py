@@ -10,6 +10,7 @@ from gtts import gTTS
 import base64
 import io
 import tempfile
+# from google.cloud import translate_v2 as translate
 
 load_dotenv()
 
@@ -17,6 +18,8 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI()
 model = whisper.load_model("small")
+
+# translate_client = translate.Client()
 
 def Transcribe_audio(audio_bytes: bytes) -> JSONResponse:
     try:
@@ -95,6 +98,10 @@ English text: {english_text}"""
     except Exception as e:
         print(f"Error in eng_to_jap: {str(e)}")
         return f"[Translation error: {str(e)}]"
+    
+# def english_to_japan(english_text):
+#     result = translate_client.translate(english_text,target_language="ja")
+#     return result 
 
 def jap_speech(translated_jap):
     try:
