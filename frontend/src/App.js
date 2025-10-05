@@ -10,15 +10,13 @@ import MessagingPage from './components/userPage.jsx'
 import ProfilePage from './components/profile.jsx';
 
 const router = createBrowserRouter([
-  { path: '/', element: <LogInPage /> },
+  {path:'/',element:<MessagingPage/>},
   { path: '/signup', element: <SignPage /> },
   { path: '/login', element: <LogInPage /> },
 
   {
     element: <ProtectedRoutes />,
     children: [
-
-      {path:'/home',element:<MessagingPage/>},
       { path: '/recorder', element: <Recorder /> },
       { path: '/ws/chat', element: <Socket /> },
       {path:'/profile',element:<ProfilePage/>},

@@ -145,7 +145,6 @@ const LoginPage = () => {
         // You can save the token here for future use, but for now we'll just log it.
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("username", data.username);
-        navigate("/home")
         // Clear form fields on success
         setUsername('');
         setPassword('');
