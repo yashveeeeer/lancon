@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect} from 'react';
 
 // Translation object
 const translations = {
@@ -19,7 +19,9 @@ const translations = {
     usernamePlaceholder: "Choose a username",
     fullnamePlaceholder: "Choose a full name",
     emailPlaceholder: "Your email address",
-    passwordPlaceholder: "Create a strong password"
+    passwordPlaceholder: "Create a strong password",
+    themeToggleLabel: "Toggle theme",
+    languageToggleLabel: "Change language"
   },
   ja: {
     appTitle: "LANCON",
@@ -38,7 +40,9 @@ const translations = {
     usernamePlaceholder: "ユーザー名を選択してください",
     fullnamePlaceholder: "フルネームを選んでください",
     emailPlaceholder: "メールアドレスを入力してください",
-    passwordPlaceholder: "強力なパスワードを作成してください"
+    passwordPlaceholder: "強力なパスワードを作成してください",
+    themeToggleLabel: "テーマの切り替え",
+    languageToggleLabel: "言語を変更"
   }
 };
 
@@ -50,7 +54,11 @@ const SignPage = () => {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [currentLang, setCurrentLang] = useState('en');
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(()=>{
+      // Initialize theme from localStorage
+    const saved = localStorage.getItem('lancon-theme');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [isLoading, setIsLoading] = useState(false);
   
   // State for a message to the user after form submission.
@@ -62,7 +70,25 @@ const SignPage = () => {
   // Language change Function
   const changeLanguage = (lang) => {
     setCurrentLang(lang);
+    localStorage.setItem('lancon-language', lang)
   };
+
+  // Theme toggle with localStorage persistence
+  const toggleTheme = () => {
+    setDarkMode(prev => {
+      const newValue = !prev;
+      localStorage.setItem('lancon-theme', JSON.stringify(newValue));
+      return newValue;
+    });
+  };
+
+    // Load saved language preference on mount
+    useEffect(() => {
+      const savedLang = localStorage.getItem('lancon-language');
+      if (savedLang && translations[savedLang]) {
+        setCurrentLang(savedLang);
+      }
+    }, []);
 
   // Handles the form submission event.
   const handleSubmit = async (event) => {
@@ -117,7 +143,9 @@ const SignPage = () => {
             <div className="flex gap-2">
               <button
                 className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30 transition-colors"
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleTheme}
+                aria-label={t("themeToggleLabel")}
+                title={t("themeToggleLabel")}
               >
                 {darkMode ? t("lightMode") : t("darkMode")}
               </button>
@@ -133,6 +161,8 @@ const SignPage = () => {
                   ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
                   : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
               }`}
+              aria-label="Switch to English"
+              title="Switch to English"
             >
               English
             </button>  
@@ -143,6 +173,8 @@ const SignPage = () => {
                   ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
                   : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
               }`}
+              aria-label="日本語に切り替え"
+              title="日本語に切り替え"
             >
               日本語
             </button>   

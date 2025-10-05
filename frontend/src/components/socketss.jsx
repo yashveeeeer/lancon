@@ -17,7 +17,8 @@ const translations = {
     youTo: "You to",
     says: "says:",
     server: "Server:",
-    signout:"SignOut"
+    signout:"SignOut",
+    sendInjap:"Send in Japanese"
   },
   ja: {
     appTitle: "LANCON",
@@ -33,7 +34,8 @@ const translations = {
     youTo: "あなたから",
     says: "さんより:",
     server: "サーバー:",
-    signout:"ログアウト"
+    signout:"ログアウト",
+    sendInjap:"日本語で送信"
   }
 };
 
@@ -50,7 +52,6 @@ function Chat() {
   const [to, setTo] = useState(""); // recipient
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [darkMode, setDarkMode] = useState(false); // theme toggle
   const [currentLang, setCurrentLang] = useState('en'); // Language state
   const [isOn, setIsOn] = useState(false);
   const ws = useRef(null);
@@ -59,11 +60,36 @@ function Chat() {
   // Translation function - moved outside of useEffect dependency
   const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
 
-  // Language change function
+  const [darkMode, setDarkMode] = useState(() => {
+        // Initialize theme from localStorage
+        const saved = localStorage.getItem('lancon-theme');
+        return saved ? JSON.parse(saved) : false;
+      });
+  
+  
+  
+    // Language change function with localStorage persistence
   const changeLanguage = (lang) => {
-    setCurrentLang(lang);
-  };
-
+        setCurrentLang(lang);
+        localStorage.setItem('lancon-language', lang);
+      };
+    
+      // Theme toggle with localStorage persistence
+  const toggleTheme = () => {
+        setDarkMode(prev => {
+          const newValue = !prev;
+          localStorage.setItem('lancon-theme', JSON.stringify(newValue));
+          return newValue;
+        });
+      };
+    
+      // Load saved language preference on mount
+    useEffect(() => {
+        const savedLang = localStorage.getItem('lancon-language');
+        if (savedLang && translations[savedLang]) {
+          setCurrentLang(savedLang);
+        }
+      }, []);
 
   function ToggleButton({enabled,onToggle}) {
     if(enabled)
@@ -152,7 +178,7 @@ function Chat() {
                 <div className="flex gap-2">
                   <button
                     className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30"
-                    onClick={() => setDarkMode(!darkMode)}
+                    onClick={toggleTheme}
                   >
                     {darkMode ? t("lightMode") : t("darkMode")}
                   </button>
@@ -185,7 +211,7 @@ function Chat() {
 
                {/* 🔹 Language Switcher - To send text in different Language */}
               <div className="flex items-center justify-center space-x-3">
-                <span className="text-gray-800">Send in Japanese</span>
+                <span className="text-gray-800">{t("sendInjap")}</span>
                 <ToggleButton 
                   enabled={isOn} 
                   onToggle={() => setIsOn(!isOn)} 

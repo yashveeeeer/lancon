@@ -251,15 +251,39 @@ const Recorder = () => {
   const [audioKey, setAudioKey] = useState(0);
   const [audioLevels, setAudioLevels] = useState(Array(12).fill(0));
   const [currentLang, setCurrentLang] = useState('en');
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+      // Initialize theme from localStorage
+      const saved = localStorage.getItem('lancon-theme');
+      return saved ? JSON.parse(saved) : false;
+    });
+
+
+
+  // Language change function with localStorage persistence
+  const changeLanguage = (lang) => {
+      setCurrentLang(lang);
+      localStorage.setItem('lancon-language', lang);
+    };
+  
+    // Theme toggle with localStorage persistence
+  const toggleTheme = () => {
+      setDarkMode(prev => {
+        const newValue = !prev;
+        localStorage.setItem('lancon-theme', JSON.stringify(newValue));
+        return newValue;
+      });
+    };
+  
+    // Load saved language preference on mount
+  useEffect(() => {
+      const savedLang = localStorage.getItem('lancon-language');
+      if (savedLang && translations[savedLang]) {
+        setCurrentLang(savedLang);
+      }
+    }, []);
 
   // Translation function - memoized to fix React Hook warning
   const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
-
-  // Language change function
-  const changeLanguage = (lang) => {
-    setCurrentLang(lang);
-  };
 
   // Helper function to extract text from complex response objects
   const extractTextFromResponse = (textData) => {
@@ -421,7 +445,7 @@ const Recorder = () => {
             <div className="flex gap-2">
               <button
                 className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30 transition-colors"
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleTheme}
               >
                 {darkMode ? t("lightMode") : t("darkMode")}
               </button>

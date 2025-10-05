@@ -10,7 +10,7 @@ const translations = {
     loginTitle: "Login",
     subtitle: "Sign in to your account",
     username: "Username",
-    password: "Password", 
+    password: "Password",
     loginButton: "Login",
     signup: "Sign up",
     loggingIn: "Logging in...",
@@ -25,25 +25,25 @@ const translations = {
     invalidCredentials: "Invalid username or password",
     serverError: "Server error occurred",
     usernameFieldLabel: "Username input field",
-    passwordFieldLabel: "Password input field", 
+    passwordFieldLabel: "Password input field",
     loginButtonLabel: "Login button",
     themeToggleLabel: "Toggle theme",
-    languageToggleLabel: "Change language"
+    languageToggleLabel: "Change language",
   },
   ja: {
     appTitle: "LANCON Voice",
-    lightMode: "☀️ ライト", 
+    lightMode: "☀️ ライト",
     darkMode: "🌙 ダーク",
     loginTitle: "ログイン",
     subtitle: "アカウントにサインイン",
     username: "ユーザー名",
     password: "パスワード",
-    loginButton: "ログイン", 
+    loginButton: "ログイン",
     signup: "サインアップ",
     loggingIn: "ログイン中...",
     accountexp: "アカウントをお持ちではありませんか？",
     usernamePlaceholder: "ユーザー名を入力してください",
-    passwordPlaceholder: "パスワードを入力してください", 
+    passwordPlaceholder: "パスワードを入力してください",
     loginSuccessful: "ログイン成功！",
     somethingWentWrong: "何か問題が発生しました。",
     networkError: "ネットワークエラー：",
@@ -124,7 +124,7 @@ const LoginPage = () => {
     setMessageType('loading');
     setMessage('');
     setIsLoading(true);
-    
+
     try {
       // Send the data to your FastAPI backend's login endpoint.
       const response = await fetch('http://localhost:8000/users/token', {
@@ -137,14 +137,14 @@ const LoginPage = () => {
 
       // Get the JSON data from the response.
       const data = await response.json();
-      
+
       // Check if the response was successful (status code 200-299).
       if (response.ok) {
         setMessageType('success');
         setMessage('');
         // You can save the token here for future use, but for now we'll just log it.
         localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("username",data.username);
+        localStorage.setItem("username", data.username);
         navigate("/home")
         // Clear form fields on success
         setUsername('');
@@ -169,7 +169,7 @@ const LoginPage = () => {
     <div className={`${darkMode ? "dark" : ""}`}>
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors p-4">
         <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-2xl overflow-hidden text-gray-900 dark:text-gray-100 transition-colors">
-          
+
           {/* Header */}
           <div className="flex justify-between items-center bg-indigo-600 dark:bg-indigo-700 px-6 py-4">
             <h1 className="text-xl font-bold text-white tracking-wide">
@@ -189,35 +189,33 @@ const LoginPage = () => {
 
           {/* Language Switcher */}
           <div className="flex justify-center gap-2 p-3 bg-gray-50 dark:bg-gray-700">
-            <button 
-              onClick={() => changeLanguage("en")} 
-              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
-                currentLang === 'en' 
-                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+            <button
+              onClick={() => changeLanguage("en")}
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${currentLang === 'en'
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600'
                   : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
-              }`}
+                }`}
               aria-label="Switch to English"
               title="Switch to English"
             >
               English
-            </button>  
-            <button 
-              onClick={() => changeLanguage("ja")} 
-              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${
-                currentLang === 'ja' 
-                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600' 
+            </button>
+            <button
+              onClick={() => changeLanguage("ja")}
+              className={`px-4 py-2 text-sm border rounded-lg transition-colors ${currentLang === 'ja'
+                  ? 'bg-indigo-500 text-white border-indigo-500 dark:bg-indigo-600 dark:border-indigo-600'
                   : 'bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-500'
-              }`}
+                }`}
               aria-label="日本語に切り替え"
               title="日本語に切り替え"
             >
               日本語
-            </button>   
+            </button>
           </div>
 
           {/* Main Content */}
           <div className="p-6 space-y-6">
-            
+
             {/* Title and Subtitle */}
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -230,11 +228,11 @@ const LoginPage = () => {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              
+
               {/* Username Field */}
               <div>
-                <label 
-                  htmlFor="username" 
+                <label
+                  htmlFor="username"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
                   {t("username")}
@@ -256,8 +254,8 @@ const LoginPage = () => {
 
               {/* Password Field */}
               <div>
-                <label 
-                  htmlFor="password" 
+                <label
+                  htmlFor="password"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
                   {t("password")}
@@ -296,17 +294,16 @@ const LoginPage = () => {
                 </button>
               </div>
             </form>
-            
+
             {/* Display message */}
             {messageType && (
               <div className="text-center" role="status" aria-live="polite">
-                <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-                  messageType === 'error' || messageType === 'network'
-                    ? 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800' 
+                <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${messageType === 'error' || messageType === 'network'
+                    ? 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800'
                     : messageType === 'loading'
-                    ? 'bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
-                    : 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800'
-                }`}>
+                      ? 'bg-blue-50 text-blue-800 border border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
+                      : 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800'
+                  }`}>
                   {messageType === 'error' || messageType === 'network' ? (
                     <span className="mr-2" aria-hidden="true">⚠️</span>
                   ) : messageType === 'loading' ? (
@@ -323,8 +320,8 @@ const LoginPage = () => {
             <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {t("accountexp")}{' '}
-                <a 
-                  href="http://localhost:3000/Signup" 
+                <a
+                  href="http://localhost:3000/Signup"
                   className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
                 >
                   {t("signup")}
