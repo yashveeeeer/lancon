@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 
-// Translations have been updated to better fit the new UI
 const translations = {
   en: {
     appTitle: "LANCON",
@@ -18,7 +17,11 @@ const translations = {
     server: "Server:",
     signout:"Sign Out",
     sendInJap:"Translate to Japanese",
-    footerText: "© 2024 LANCON. All Rights Reserved."
+    footerText: "© 2024 LANCON. All Rights Reserved.",
+    searchUsers: "Search users...",
+    availableUsers: "Available Users",
+    noUsersFound: "No users found",
+    loadingUsers: "Loading users..."
   },
   ja: {
     appTitle: "LANCON",
@@ -35,11 +38,14 @@ const translations = {
     server: "サーバー:",
     signout:"ログアウト",
     sendInJap:"日本語に翻訳して送信",
-    footerText: "© 2024 LANCON. 無断複写・転載を禁じます。"
+    footerText: "© 2024 LANCON. 無断複写・転載を禁じます。",
+    searchUsers: "ユーザーを検索...",
+    availableUsers: "利用可能なユーザー",
+    noUsersFound: "ユーザーが見つかりません",
+    loadingUsers: "読み込み中..."
   }
 };
 
-// A more robust toggle button component for the UI
 function ToggleButton({ enabled, onToggle }) {
   return (
     <button onClick={onToggle} className={`relative flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent p-0.5 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${enabled ? "bg-indigo-600" : "bg-gray-300 dark:bg-gray-600"}`}>
@@ -49,16 +55,21 @@ function ToggleButton({ enabled, onToggle }) {
 }
 
 function Chat() {
-  // --- YOUR ORIGINAL CORE LOGIC (RESTORED, with the toggle fix) ---
   const [userId, setUserId] = useState("");
   const [to, setTo] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [currentLang, setCurrentLang] = useState('en');
-  const [isOn, setIsOn] = useState(false); // State for the Japanese toggle
+  const [isOn, setIsOn] = useState(false);
   const ws = useRef(null);
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
+
+  // New states for user search
+  const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('lancon-theme');
@@ -72,13 +83,53 @@ function Chat() {
     if (savedUser) { setUserId(savedUser); }
   }, []);
 
-  const changeLanguage = (lang) => { setCurrentLang(lang); localStorage.setItem('lancon-language', lang); };
-  const toggleTheme = () => { setDarkMode(prev => { const val = !prev; localStorage.setItem('lancon-theme', JSON.stringify(val)); return val; }); };
+  const changeLanguage = (lang) => { 
+    setCurrentLang(lang); 
+    localStorage.setItem('lancon-language', lang); 
+  };
+  
+  const toggleTheme = () => { 
+    setDarkMode(prev => { 
+      const val = !prev; 
+      localStorage.setItem('lancon-theme', JSON.stringify(val)); 
+      return val; 
+    }); 
+  };
 
   useEffect(() => {
     const savedLang = localStorage.getItem('lancon-language');
     if (savedLang && translations[savedLang]) { setCurrentLang(savedLang); }
   }, []);
+
+  // Fetch all signed-in users from the database
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoadingUsers(true);
+      try {
+        const token = localStorage.getItem("access_token");
+        const response = await fetch('http://localhost:8000/search', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Filter out the current user from the list
+          const otherUsers = data.usernames.filter(username => username !== userId);
+          setUsers(otherUsers);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    if (userId) {
+      fetchUsers();
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -102,11 +153,7 @@ function Chat() {
 
   const sendMessage = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN && message.trim() && to.trim()) {
-      // This is the one necessary fix: it uses the 'isOn' state to correctly set 'lang'
       ws.current.send(JSON.stringify({ to, message, lang: isOn }));
-      
-      // YOUR ORIGINAL sendMessage LOGIC IS RESTORED
-      // Adds the sent message as a string to the array
       setMessages((prev) => [...prev, `${t("youTo")} ${to}: ${message}`]);
       setMessage("");
     }
@@ -121,7 +168,17 @@ function Chat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  // --- END OF CORE LOGIC ---
+
+  // FIXED: Filter users based on search query
+  const filteredUsers = users.filter(user =>
+    user.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Select user and populate the "to" field
+  const selectUser = (username) => {
+    setTo(username);
+    setSelectedUser(username);
+  };
 
   return (
     <div className={`${darkMode ? "dark" : ""}`}>
@@ -141,22 +198,82 @@ function Chat() {
             </div>
         </header>
 
-        <main className="container mx-auto flex h-full w-full max-w-4xl flex-grow flex-col p-4">
-          <div className="flex h-full flex-col rounded-2xl bg-white shadow-2xl dark:bg-gray-800">
+        <main className="container mx-auto flex h-full w-full max-w-5xl flex-grow flex-row p-4 gap-4 overflow-hidden">
+          
+          {/* User Search Sidebar */}
+          <div className="flex h-full w-64 flex-shrink-0 flex-col rounded-2xl bg-white shadow-xl dark:bg-gray-800 overflow-hidden">
+            <div className="flex-shrink-0 border-b border-gray-200 p-4 dark:border-gray-700">
+              <h2 className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200">
+                {t("availableUsers")}
+              </h2>
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                  🔍
+                </span>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t("searchUsers")}
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                />
+              </div>
+            </div>
+
+            {/* Users List */}
+            <div className="flex-1 overflow-y-auto">
+              {loadingUsers ? (
+                <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  {t("loadingUsers")}
+                </div>
+              ) : filteredUsers.length === 0 ? (
+                <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  {t("noUsersFound")}
+                </div>
+              ) : (
+                // FIXED: Rendering logic now uses 'user' as a string
+                filteredUsers.map((user, index) => (
+                  <button
+                    key={index}
+                    onClick={() => selectUser(user)}
+                    className={`w-full border-b border-gray-100 p-4 text-left transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700 ${
+                      selectedUser === user ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500 text-white font-semibold">
+                        {user[0].toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-800 dark:text-gray-200 truncate">
+                          {user}
+                        </p>
+                        <p className="text-xs text-green-600 dark:text-green-400">
+                          Online
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Main Chat Area */}
+          <div className="flex h-full flex-col rounded-2xl bg-white shadow-2xl dark:bg-gray-800 w-full overflow-hidden">
             <div className="flex-shrink-0 rounded-t-2xl border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
                 <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                     {t("loggedInAs")} <span className="font-semibold text-indigo-600 dark:text-indigo-400">{userId}</span>
                 </p>
             </div>
             
-            <div className="flex-grow space-y-4 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 ? (
                 <div className="flex h-full items-center justify-center">
                     <p className="text-gray-400">{t("noMessages")}</p>
                 </div>
               ) : (
                 messages.map((msg, i) => {
-                  // This logic now works because 'msg' is a string again
                   const isSent = msg.includes(t("youTo"));
                   const isServer = msg.startsWith(t("server"));
                   
@@ -176,9 +293,9 @@ function Chat() {
               <div className="space-y-3">
                 <div className="relative">
                   <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">👤</span>
-                  <input type="text" value={to} onChange={(e) => setTo(e.target.value)} placeholder={t("sendToPlaceholder")} className="w-full rounded-lg border border-gray-300 bg-white p-2 pl-9 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700" />
+                  <input type="text" value={to} onChange={(e) => setTo(e.target.value)} placeholder={t("sendToPlaceholder")} className="w-full rounded-lg border border-gray-300 bg-white p-2 pl-9 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
                 </div>
-                <textarea value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder={t("messagePlaceholder")} rows="3" className="w-full resize-none rounded-lg border border-gray-300 bg-white p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700" />
+                <textarea value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder={t("messagePlaceholder")} rows="3" className="w-full resize-none rounded-lg border border-gray-300 bg-white p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <ToggleButton enabled={isOn} onToggle={() => setIsOn(!isOn)} />

@@ -6,10 +6,15 @@ from app.database.connection import user_collection
 from datetime import datetime
 from fastapi import APIRouter, Depends
 from app.translation.trans import eng_to_jap
-# from app.translation.trans import english_to_japan
+from app.auth.dependencies import get_current_user_from_token
+from fastapi.security import OAuth2PasswordBearer
+
+
 router = APIRouter(tags=["websocket"])
 
 manager = ConnectionManager()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 # WebSocket Endpoint for Real-time Chat
@@ -60,3 +65,16 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         manager.disconnect(user_id)
     except Exception as e:
         print("Error:", e)
+
+
+@router.get("/search")
+async def find_user(token: str = Depends(oauth2_scheme)):
+    try:
+        user = await get_current_user_from_token(token)
+        print("Authenticated user:", user.username)
+    except Exception as e:
+        print("Authentication failed:", e)
+        raise
+     
+    usernames = await user_collection.distinct("username")
+    return {"usernames": usernames}
