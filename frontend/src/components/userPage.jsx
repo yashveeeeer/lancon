@@ -26,7 +26,7 @@ const translations = {
     feature2Text: "Want to know how something sounds? Record your English voice, and our app will generate the Japanese text and a spoken audio clip. It's perfect for learning and fun!",
     feature3Title: "Comfortable & Modern UI",
     feature3Text: "All this power is wrapped in a clean, intuitive interface. Enjoy our sleek dark mode, easy navigation, and a user experience designed to keep the focus on your conversation.",
-    footerText: "© 2024 LANCON. All Rights Reserved."
+    footerText: "© 2025 LANCON. All Rights Reserved."
   },
   ja: {
     appTitle: "LANCON",
@@ -51,7 +51,7 @@ const translations = {
     feature2Text: "発音を知りたいですか？あなたの英語の音声を録音すると、アプリが日本語のテキストと音声クリップを生成します。学習や楽しみに最適です！",
     feature3Title: "快適でモダンなUI",
     feature3Text: "この強力な機能は、クリーンで直感的なインターフェースに包まれています。洗練されたダークモード、簡単なナビゲーション、会話に集中できるデザインをお楽しみください。",
-    footerText: "© 2024 LANCON. 無断複写・転載を禁じます。"
+    footerText: "© 2025 LANCON. 無断複写・転載を禁じます。"
   }
 };
 

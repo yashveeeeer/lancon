@@ -22,7 +22,7 @@ const translations = {
     somethingWentWrong: "Something went wrong.",
     networkError: "Network error:",
     error: "Error:",
-    footerText: "© 2024 LANCON. All Rights Reserved."
+    footerText: "© 2025 LANCON. All Rights Reserved."
   },
   ja: {
     appTitle: "LANCON",
@@ -43,7 +43,7 @@ const translations = {
     somethingWentWrong: "何か問題が発生しました。",
     networkError: "ネットワークエラー：",
     error: "エラー：",
-    footerText: "© 2024 LANCON. 無断複写・転載を禁じます。"
+    footerText: "© 2025 LANCON. 無断複写・転載を禁じます。"
   }
 };
 

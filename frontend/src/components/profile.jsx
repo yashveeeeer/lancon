@@ -42,7 +42,7 @@ const ProfilePage = () => {
                                 <div className="border-t pt-4 space-y-3">
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-gray-500">Member since</span>
-                                        <span className="text-gray-800">January 2024</span>
+                                        <span className="text-gray-800">January 2025</span>
                                     </div>
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-gray-500">Last seen</span>

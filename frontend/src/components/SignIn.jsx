@@ -23,7 +23,7 @@ const translations = {
     fullnamePlaceholder: "Enter your full name",
     emailPlaceholder: "Your email address",
     passwordPlaceholder: "Create a strong password",
-    footerText: "© 2024 LANCON. All Rights Reserved."
+    footerText: "© 2025 LANCON. All Rights Reserved."
   },
   ja: {
     appTitle: "LANCON",
@@ -45,7 +45,7 @@ const translations = {
     fullnamePlaceholder: "フルネームを入力してください",
     emailPlaceholder: "メールアドレスを入力してください",
     passwordPlaceholder: "強力なパスワードを作成してください",
-    footerText: "© 2024 LANCON. 無断複写・転載を禁じます。"
+    footerText: "© 2025 LANCON. 無断複写・転載を禁じます。"
   }
 };
 

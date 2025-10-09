@@ -26,7 +26,7 @@ const translations = {
     pauseAudio: "Pause Audio",
     audioError: "Audio playback error",
     signout:"Sign Out",
-    footerText: "© 2024 LANCON. All Rights Reserved."
+    footerText: "© 2025 LANCON. All Rights Reserved."
   },
   ja: {
     appTitle: "LANCON Voice",
@@ -50,7 +50,7 @@ const translations = {
     pauseAudio: "音声停止",
     audioError: "音声再生エラー",
     signout:"ログアウト",
-    footerText: "© 2024 LANCON. 無断複写・転載を禁じます。"
+    footerText: "© 2025 LANCON. 無断複写・転載を禁じます。"
   }
 };
 
