@@ -1,31 +1,23 @@
-# LanCon - Break Language Barriers, Connect Hearts 🌍✨
+# LanCon - Cross-Language Communication Platform
 
-> *Don't speak Japanese? No problem! Chat in your own language and let LanCon handle the rest.*
+A real-time communication platform enabling seamless conversations between English and Japanese speakers through instant message and voice translation.
 
-## 🎯 What is LanCon?
+## Overview
 
-LanCon is your bridge across languages - a revolutionary chat application that instantly translates between English and Japanese. Whether you're typing messages or speaking, LanCon makes cross-language communication as natural as talking to someone who speaks your language.
+LanCon bridges language barriers by providing instant translation capabilities for text and voice communications. It offers natural, fluid conversations between speakers of different languages without requiring either party to know the other's language.
 
-## ✨ Why LanCon?
+## Core Features
 
-- 🗣️ **Speak Naturally** - Just talk in English, and your Japanese friends will hear it in Japanese!
-- 💬 **Type Freely** - Write in your language, and watch as messages magically transform
-- 🎤 **Voice Freedom** - Record voice messages in English, get Japanese audio back
-- 🚀 **Real-time Magic** - No delays, no awkward pauses - just smooth conversations
-- 🌐 **Break Barriers** - Make friends across cultures without language holding you back
+- Real-time message translation between English and Japanese
+- Voice-to-voice translation capabilities
+- User authentication and profile management
+- Secure WebSocket-based chat system
+- Text-to-speech conversion
+- Theme customization options
+- User search functionality
+- Bilingual interface support
 
-## Features
-
-- 🔒 User authentication (signup/login)  
-- 💬 Real-time chat with automatic message translation
-- 🎤 Voice recording with English to Japanese translation
-- 🔊 Text-to-speech for Japanese translations
-- 🌓 Dark/Light theme support
-- 🌐 Bilingual interface (English/Japanese)
-- 👥 User profile management
-- 🔍 User search functionality
-
-## Tech Stack
+## Technical Architecture
 
 ### Frontend
 - React 19
@@ -42,7 +34,9 @@ LanCon is your bridge across languages - a revolutionary chat application that i
 - Gemini AI for translation
 - gTTS (Google Text-to-Speech)
 
-## Prerequisites
+## Getting Started
+
+### Prerequisites
 
 - Python 3.12+
 - Node.js 19+
@@ -50,62 +44,55 @@ LanCon is your bridge across languages - a revolutionary chat application that i
 - Google Cloud API key
 - Gemini AI API key
 
-## Environment Setup
+### Environment Configuration
 
-1. Create a `.env` file in the `/backend` directory:
-
+1. Configure backend environment:
 ```env
 MONGO_URL=your_mongodb_connection_string
 GEMINI_API_KEY=your_gemini_ai_api_key
 ```
 
 2. Install backend dependencies:
-
 ```bash
 cd backend
 pip install fastapi uvicorn motor pymongo python-jose[cryptography] passlib python-multipart whisper google-cloud-translate gtts google-generativeai python-dotenv
 ```
 
 3. Install frontend dependencies:
-
 ```bash
 cd frontend
 npm install
 ```
 
-## Running the Application
+### Development Server
 
-1. Start the backend server:
-
+1. Start backend server:
 ```bash
 cd backend
 uvicorn main:app --reload
 ```
 
-2. Start the frontend development server:
-
+2. Start frontend development server:
 ```bash
 cd frontend
 npm start
 ```
 
-The application will be available at:
+Access points:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 
-## API Routes
+## API Documentation
 
-### Authentication
-- POST `/users/register` - Register new user
-- POST `/users/token` - Login and get access token
-- GET `/users/me` - Get current user profile
+### Authentication Endpoints
+- POST `/users/register` - User registration
+- POST `/users/token` - Authentication
+- GET `/users/me` - Profile retrieval
 
-### Chat
-- WebSocket `/ws/{user_id}` - Real-time chat connection
-- GET `/search` - Search for users
-
-### Audio
-- POST `/upload-audio` - Upload and translate voice recordings
+### Communication Endpoints
+- WebSocket `/ws/{user_id}` - Chat connection
+- GET `/search` - User search
+- POST `/upload-audio` - Audio processing
 
 ## Project Structure
 
@@ -122,7 +109,6 @@ lancon/
 │   │   └── translation/# Translation services
 │   └── main.py         # FastAPI application
 └── frontend/
-    ├── public/
     ├── src/
     │   ├── components/ # React components
     │   ├── models/     # Frontend models
@@ -131,45 +117,35 @@ lancon/
     └── package.json
 ```
 
+## Future Development
+
+### Language Support Expansion
+- Integration of major Asian languages
+- European language support
+- Arabic and RTL language implementation
+
+### Feature Enhancements
+- Video chat with live translations
+- Mobile applications
+- Enhanced AI translation accuracy
+- Gaming-specific translation modules
+
+### Technical Roadmap
+- Offline functionality
+- Accent adaptation
+- Voice modulation
+- End-to-end encryption
+- Regional server deployment
+
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/enhancement`)
+3. Commit changes (`git commit -m 'Add enhancement'`)
+4. Push to branch (`git push origin feature/enhancement`)
 5. Open a Pull Request
-
-
-## 🚀 Future Roadmap
-
-### Multilingual Expansion
-- 🌏 Support for all major Asian languages (Korean, Mandarin, Hindi, Thai)
-- 🌍 European language integration (Spanish, French, German, Italian)
-- 🌎 Support for Arabic and right-to-left languages
-
-### Enhanced Features
-- 🎥 Real-time video chat with live subtitle translations
-- 📱 Mobile applications for iOS and Android
-- 🤖 Improved AI translation accuracy with context awareness
-- 🎮 Gaming-specific translation modules for better gaming terminology
-
-### Community Features
-- 👥 Language exchange matching system
-- 🏫 Virtual language learning rooms
-- 🎯 Dialect support within languages
-- 🤝 Cultural exchange recommendations
-
-### Technical Improvements
-- ⚡ Offline mode support
-- 🔄 Real-time accent adaptation
-- 🎛️ Custom voice modulation per language
-- 🔐 End-to-end encryption for all communications
-- 🌐 Regional server deployment for reduced latency
-
-Stay tuned as we work to make LanCon the ultimate global communication platform! 
-
 
 ## License
 
-This project is proprietary software. All rights reserved.
-See the [LICENSE](LICENSE) file for full license terms.
+Proprietary software. All rights reserved.
+See [LICENSE](LICENSE) for terms.
