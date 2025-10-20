@@ -4,6 +4,7 @@ import subprocess
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
+from google.cloud import translate_v2 as translate
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from gtts import gTTS
@@ -19,7 +20,7 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 app = FastAPI()
 model = whisper.load_model("small")
 
-# translate_client = translate.Client()
+translate_client = translate.Client()
 
 def Transcribe_audio(audio_bytes: bytes) -> JSONResponse:
     try:
@@ -76,32 +77,16 @@ def Transcribe_audio(audio_bytes: bytes) -> JSONResponse:
             "japanese_audio": ""
         }, status_code=500)
 
-def eng_to_jap(english_text):
-    try:
-        if not english_text or not english_text.strip():
-            return ""
-            
-        model = genai.GenerativeModel("gemini-2.5-flash-preview-09-2025")
-        prompt = f"""Translate the following English text to Japanese.
-Return ONLY the Japanese translation. No explanation. No additional text.
+def translator(text,changer):
 
-English text: {english_text}"""
-        
-        response = model.generate_content(prompt)
-        japanese_translation = response.text.strip()
-        
-        print(f"English input: '{english_text}'")
-        print(f"Japanese output: '{japanese_translation}'")
-        
-        return japanese_translation
-        
-    except Exception as e:
-        print(f"Error in eng_to_jap: {str(e)}")
-        return f"[Translation error: {str(e)}]"
+      try:
+          result = translate_client.translate(text,target_language=changer)
+          
+          return result["translatedText"]
+      except Exception as e:
+          print(f"Error in translation: {str(e)}")
+          return e
     
-# def english_to_japan(english_text):
-#     result = translate_client.translate(english_text,target_language="ja")
-#     return result 
 
 def jap_speech(translated_jap):
     try:
@@ -128,8 +113,3 @@ def jap_speech(translated_jap):
     except Exception as e:
         print(f"Error in jap_speech: {str(e)}")
         return ""
-
-@app.post("/upload-audio")
-async def upload_audio(audio: UploadFile = File(...)):
-    audio_bytes = await audio.read()
-    return Transcribe_audio(audio_bytes)

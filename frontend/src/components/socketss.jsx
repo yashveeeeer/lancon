@@ -21,7 +21,8 @@ const translations = {
     searchUsers: "Search users...",
     availableUsers: "Available Users",
     noUsersFound: "No users found",
-    loadingUsers: "Loading users..."
+    loadingUsers: "Loading users...",
+    save: "save"
   },
   ja: {
     appTitle: "LANCON",
@@ -42,17 +43,12 @@ const translations = {
     searchUsers: "ユーザーを検索...",
     availableUsers: "利用可能なユーザー",
     noUsersFound: "ユーザーが見つかりません",
-    loadingUsers: "読み込み中..."
+    loadingUsers: "読み込み中...",
+    save: "セーブ"
   }
 };
 
-function ToggleButton({ enabled, onToggle }) {
-  return (
-    <button onClick={onToggle} className={`relative flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent p-0.5 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${enabled ? "bg-indigo-600" : "bg-gray-300 dark:bg-gray-600"}`}>
-      <span aria-hidden="true" className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${enabled ? "translate-x-5" : "translate-x-0"}`} />
-    </button>
-  );
-}
+
 
 function Chat() {
   const [userId, setUserId] = useState("");
@@ -60,10 +56,11 @@ function Chat() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [currentLang, setCurrentLang] = useState('en');
-  const [isOn, setIsOn] = useState(false);
+  const [lang, setlang] = useState("en");
   const ws = useRef(null);
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
+  const [selectedLang, setSelectedLang] = useState("en");
 
   // New states for user search
   const [users, setUsers] = useState([]);
@@ -75,6 +72,34 @@ function Chat() {
     const saved = localStorage.getItem('lancon-theme');
     return saved ? JSON.parse(saved) : false;
   });
+
+  const availableLanguages = [
+    { language: "en", name: "English" },
+    { language: "hi", name: "Hindi" },
+    { language: "es", name: "Spanish" },
+    { language: "fr", name: "French" },
+    { language: "de", name: "German" },
+    { language: "ja", name: "Japanese" },
+    { language: "zh", name: "Chinese" },
+    { language: "ar", name: "Arabic" },
+    { language: "ru", name: "Russian" },
+    { language: "pt", name: "Portuguese" },
+  ];
+
+   const handleChange = (e) => {
+    setSelectedLang(e.target.value);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedLang) {
+      alert("Please select a language first.");
+      return;
+    }
+    else{
+      setlang(selectedLang);
+      alert(`Translation language set to ${selectedLang}`);
+    }
+  };
 
   const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
 
@@ -153,7 +178,7 @@ function Chat() {
 
   const sendMessage = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN && message.trim() && to.trim()) {
-      ws.current.send(JSON.stringify({ to, message, lang: isOn }));
+      ws.current.send(JSON.stringify({ to, message, lang}));
       setMessages((prev) => [...prev, `${t("youTo")} ${to}: ${message}`]);
       setMessage("");
     }
@@ -297,9 +322,26 @@ function Chat() {
                 </div>
                 <textarea value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} placeholder={t("messagePlaceholder")} rows="3" className="w-full resize-none rounded-lg border border-gray-300 bg-white p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200" />
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <ToggleButton enabled={isOn} onToggle={() => setIsOn(!isOn)} />
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{t("sendInJap")}</span>
+                    <div>
+                      {/* 4. The Dropdown now maps over our hardcoded list */}
+                      <select
+                        onChange={handleChange}
+                        className="w-full rounded-lg border border-gray-300 bg-white p-2 pl-4 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                        value={selectedLang}
+                      >
+                        <option value="">-- Select Translation Language --</option>
+                        {availableLanguages.map((lang) => (
+                          <option key={lang.language} value={lang.language}>
+                            {lang.name}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={handleSubmit}
+                        className="rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                      >
+                        {t("save")}
+                      </button>
                     </div>
                     <button onClick={sendMessage} className="rounded-lg bg-indigo-600 px-6 py-2 font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
                       {t("sendButton")}
