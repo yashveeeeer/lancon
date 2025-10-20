@@ -1,21 +1,32 @@
-# LanCon - Cross-Language Communication Platform
+# LanCon - Universal Language Communication Platform
 
-A real-time communication platform enabling seamless conversations between English and Japanese speakers through instant message and voice translation.
+A real-time communication platform enabling seamless conversations between people speaking different languages through instant message translation.
 
 ## Overview
 
-LanCon bridges language barriers by providing instant translation capabilities for text and voice communications. It offers natural, fluid conversations between speakers of different languages without requiring either party to know the other's language.
+LanCon eliminates language barriers by providing instant translation capabilities for text and soon voice communications. It offers natural, fluid conversations between speakers of different languages without requiring any party to know the other's language.
 
 ## Core Features
 
-- Real-time message translation between English and Japanese
-- Voice-to-voice translation capabilities
+- Real-time message translation between multiple languages
 - User authentication and profile management
 - Secure WebSocket-based chat system
 - Text-to-speech conversion
 - Theme customization options
 - User search functionality
-- Bilingual interface support
+- Multi-language interface support
+
+## Supported Languages
+- English
+- Japanese
+- Spanish
+- French
+- German
+- Chinese (Simplified)
+- Korean
+- Hindi
+- Russian
+- Arabic
 
 ## Technical Architecture
 
@@ -64,7 +75,7 @@ cd frontend
 npm install
 ```
 
-### Development Server
+## Development Server
 
 1. Start backend server:
 ```bash
@@ -81,6 +92,20 @@ npm start
 Access points:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
+
+## Using the Platform
+
+1. Register or use demo accounts:
+   - Username: username1 / Password: username1
+   - Username: username2 / Password: username2
+
+2. Select your preferred language from the language dropdown
+
+3. Start chatting - messages will automatically:
+   - Detect the source language
+   - Translate to recipient's preferred language
+   - Support voice input/output in selected languages
 
 ## API Documentation
 
@@ -120,22 +145,25 @@ lancon/
 ## Future Development
 
 ### Language Support Expansion
-- Integration of major Asian languages
-- European language support
-- Arabic and RTL language implementation
+- Additional regional languages and dialects
+- Support for less common languages
+- Improved dialect recognition
+- Enhanced cultural context awareness
 
 ### Feature Enhancements
 - Video chat with live translations
 - Mobile applications
 - Enhanced AI translation accuracy
 - Gaming-specific translation modules
+- Real-time language learning suggestions
 
 ### Technical Roadmap
 - Offline functionality
-- Accent adaptation
-- Voice modulation
+- Advanced accent adaptation
+- Neural voice modulation
 - End-to-end encryption
 - Regional server deployment
+- Improved context awareness for translations
 
 ## Contributing
 
