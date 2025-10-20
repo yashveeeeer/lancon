@@ -56,7 +56,7 @@ def Transcribe_audio(audio_bytes: bytes) -> JSONResponse:
                 "japanese_audio": ""
             })
         
-        translated_jap = eng_to_jap(english_text)
+        translated_jap = translator(english_text,"ja")
         print(f"Translated Japanese text: '{translated_jap}'")
         
         jap_audio = ""

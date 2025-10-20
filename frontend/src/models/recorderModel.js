@@ -27,16 +27,13 @@ export class RecorderModel {
       this.recorder.addEventListener('dataavailable', (e) => {
         if (e.data.size > 0) {
           this.chunks.push(e.data);
-          console.log('Chunk received, size:', e.data.size);
         } else {
-          console.warn('Empty chunk received');
         }
       });
 
       this.recorder.addEventListener('stop', () => {
         this.stream.getTracks().forEach(track => track.stop());
         const blob = new Blob(this.chunks, { type: this.recorder.mimeType });
-        console.log('Final blob size:', blob.size);
         if (blob.size > 0) {
           this.sendAudio(blob);
         } else {
@@ -61,14 +58,12 @@ export class RecorderModel {
     if (this.recorder && this.recorder.state === 'inactive') {
       this.chunks = [];
       this.recorder.start(); // Remove chunking to send full recording
-      console.log('Recording started, MIME type:', this.recorder.mimeType);
     }
   }
 
   stop() {
     if (this.recorder && this.recorder.state === 'recording') {
       this.recorder.stop();
-      console.log('Recording stopped');
     }
   }
 
@@ -89,7 +84,6 @@ export class RecorderModel {
       return res.json();
     })
     .then(data => {
-      console.log('Backend response:', data);
       this.audioCallback(data);
     })
     .catch(err => {
