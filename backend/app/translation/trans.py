@@ -1,4 +1,4 @@
-import whisper
+# import whisper
 import numpy as np
 import subprocess
 import os
@@ -18,64 +18,64 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI()
-model = whisper.load_model("small")
+# model = whisper.load_model("small")
 
 translate_client = translate.Client()
 
-def Transcribe_audio(audio_bytes: bytes) -> JSONResponse:
-    try:
-        print(f"Received audio bytes length: {len(audio_bytes)}")
+# def Transcribe_audio(audio_bytes: bytes) -> JSONResponse:
+#     try:
+#         print(f"Received audio bytes length: {len(audio_bytes)}")
         
-        # Save to temporary WAV file for reliable Whisper processing
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
-            temp_path = temp_file.name
-            process = subprocess.Popen(
-                ['ffmpeg', '-y', '-i', 'pipe:0', '-f', 'wav', '-acodec', 'pcm_s16le', '-ac', '1', '-ar', '16000', temp_path],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            _, err = process.communicate(input=audio_bytes)
-            if process.returncode != 0:
-                err_msg = err.decode()
-                print(f"FFmpeg error: {err_msg}")
-                raise ValueError(f"Audio conversion failed: {err_msg}")
+#         # Save to temporary WAV file for reliable Whisper processing
+#         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+#             temp_path = temp_file.name
+#             process = subprocess.Popen(
+#                 ['ffmpeg', '-y', '-i', 'pipe:0', '-f', 'wav', '-acodec', 'pcm_s16le', '-ac', '1', '-ar', '16000', temp_path],
+#                 stdin=subprocess.PIPE,
+#                 stdout=subprocess.PIPE,
+#                 stderr=subprocess.PIPE
+#             )
+#             _, err = process.communicate(input=audio_bytes)
+#             if process.returncode != 0:
+#                 err_msg = err.decode()
+#                 print(f"FFmpeg error: {err_msg}")
+#                 raise ValueError(f"Audio conversion failed: {err_msg}")
         
-        # Transcribe the temporary file
-        result = model.transcribe(temp_path)
-        english_text = result['text'].strip()
-        print(f"Whisper transcribed text: '{english_text}'")
+#         # Transcribe the temporary file
+#         result = model.transcribe(temp_path)
+#         english_text = result['text'].strip()
+#         print(f"Whisper transcribed text: '{english_text}'")
         
-        # Clean up temp file
-        os.unlink(temp_path)
+#         # Clean up temp file
+#         os.unlink(temp_path)
         
-        if not english_text:
-            return JSONResponse(content={
-                "english_text": "[No speech detected]",
-                "japanese_text": "[音声が検出されませんでした]",
-                "japanese_audio": ""
-            })
+#         if not english_text:
+#             return JSONResponse(content={
+#                 "english_text": "[No speech detected]",
+#                 "japanese_text": "[音声が検出されませんでした]",
+#                 "japanese_audio": ""
+#             })
         
-        translated_jap = translator(english_text,"ja")
-        print(f"Translated Japanese text: '{translated_jap}'")
+#         translated_jap = translator(english_text,"ja")
+#         print(f"Translated Japanese text: '{translated_jap}'")
         
-        jap_audio = ""
-        if translated_jap and translated_jap.strip():
-            jap_audio = jap_speech(translated_jap)
+#         jap_audio = ""
+#         if translated_jap and translated_jap.strip():
+#             jap_audio = jap_speech(translated_jap)
         
-        return JSONResponse(content={
-            "english_text": english_text,
-            "japanese_text": translated_jap,
-            "japanese_audio": jap_audio
-        })
+#         return JSONResponse(content={
+#             "english_text": english_text,
+#             "japanese_text": translated_jap,
+#             "japanese_audio": jap_audio
+#         })
         
-    except Exception as e:
-        print(f"Error in Transcribe_audio: {str(e)}")
-        return JSONResponse(content={
-            "english_text": f"[Error: {str(e)}]",
-            "japanese_text": "[エラーが発生しました]",
-            "japanese_audio": ""
-        }, status_code=500)
+#     except Exception as e:
+#         print(f"Error in Transcribe_audio: {str(e)}")
+#         return JSONResponse(content={
+#             "english_text": f"[Error: {str(e)}]",
+#             "japanese_text": "[エラーが発生しました]",
+#             "japanese_audio": ""
+#         }, status_code=500)
 
 def translator(text,changer):
 

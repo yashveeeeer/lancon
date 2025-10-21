@@ -1,7 +1,7 @@
 gTTS==2.5.4
 motor==3.7.1
 numpy==2.2.2
-openai-whisper
+# openai-whisper
 passlib==1.7.4
 pydantic==2.11.7
 pydantic-settings==2.10.1
@@ -16,3 +16,4 @@ python-multipart==0.0.20
 starlette==0.47.2
 fastapi==0.116.1
 fastapi-socketio==0.0.10
+google-cloud-translate==3.21.1

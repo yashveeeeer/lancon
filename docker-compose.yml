@@ -8,19 +8,13 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      # 1. Tells Google's library where to find the key inside the container
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/service-account-key.json
     volumes:
       - ./backend:/app
-    # Enable GPU access (requires NVIDIA Container Toolkit)
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      # 2. Mounting the local key file into the container as read-only
+      - ./service-account-key.json:/app/service-account-key.json:ro
     depends_on:
       - frontend
 

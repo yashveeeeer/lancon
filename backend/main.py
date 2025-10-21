@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import settings
-from app.routers import users, audio, websocket
+from app.routers import users, websocket
 from app.database.connection import test_db_connection
 
 app = FastAPI()
@@ -15,7 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(users.router)
-app.include_router(audio.router)
+# app.include_router(audio.router)
 app.include_router(websocket.router)
 
 @app.on_event("startup")
