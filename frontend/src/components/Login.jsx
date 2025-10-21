@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 const translations = {
@@ -285,9 +286,9 @@ const LoginPage = () => {
                   <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {t("accountexp")}{' '}
-                      <a href="http://localhost:3000/Signup" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
+                     <Link to="/Signup" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
                         {t("signup")}
-                      </a>
+                     </Link>
                     </p>
                   </div>
                 </div>
