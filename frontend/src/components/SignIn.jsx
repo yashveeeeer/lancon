@@ -93,7 +93,8 @@ const SignPage = () => {
     setMessage(t("processing"));
 
     try {
-      const response = await fetch('http://localhost:8000/users/register', {
+      const API_BASE_URL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${API_BASE_URL}/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({ username, fullname, password, email }),

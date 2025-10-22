@@ -74,8 +74,8 @@ export class RecorderModel {
   sendAudio(blob) {
     const formData = new FormData();
     formData.append('audiofile', blob, 'recording.webm');
-
-    fetch("http://localhost:8000/upload-audio", {
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
+    fetch(`${API_BASE_URL}/upload-audio`, {
       method: 'POST',
       body: formData
     })

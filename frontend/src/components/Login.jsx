@@ -126,7 +126,8 @@ const LoginPage = () => {
 
     try {
       // Send the data to your FastAPI backend's login endpoint.
-      const response = await fetch('http://localhost:8000/users/token', {
+      const API_BASE_URL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${API_BASE_URL}/users/token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({ username, password }),

@@ -132,7 +132,8 @@ function Chat() {
       setLoadingUsers(true);
       try {
         const token = localStorage.getItem("access_token");
-        const response = await fetch('http://localhost:8000/search', {
+        const API_BASE_URL = process.env.REACT_APP_API_URL;
+        const response = await fetch(`${API_BASE_URL}/search`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -159,7 +160,8 @@ function Chat() {
   useEffect(() => {
     if (!userId) return;
     const token = localStorage.getItem("access_token");
-    ws.current = new WebSocket(`ws://localhost:8000/ws/${userId}?token=${token}`);
+    const API_BASE_URL = process.env.REACT_APP_WS_URL;
+    ws.current = new WebSocket(`${API_BASE_URL}/ws/${userId}?token=${token}`);
     
     // YOUR ORIGINAL onmessage LOGIC IS RESTORED
     ws.current.onmessage = (event) => {
