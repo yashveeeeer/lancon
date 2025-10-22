@@ -15,16 +15,14 @@ services:
       - ./backend/app/service-account-key.json:/app/service-account-key.json:ro
 
   frontend:
-  build:
-    context: ./frontend
-    args:
-      - REACT_APP_API_URL=/api
-  environment:
-    - REACT_APP_API_URL=/api
-  container_name: lancon-frontend
-  ports:
+    build:
+      context: ./frontend
+      args:
+        - REACT_APP_API_URL=/api
+    container_name: lancon-frontend
+    ports:
       - "3000:80"
-  environment:
-      - REACT_APP_API_URL=http://backend:8000
-  stdin_open: true
-  tty: true
+    environment:
+      - REACT_APP_API_URL=/api
+    stdin_open: true
+    tty: true
