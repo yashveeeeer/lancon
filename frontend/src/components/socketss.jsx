@@ -160,8 +160,10 @@ function Chat() {
   useEffect(() => {
     if (!userId) return;
     const token = localStorage.getItem("access_token");
-    const API_BASE_URL = process.env.REACT_APP_WS_URL;
-    ws.current = new WebSocket(`${API_BASE_URL}/ws/${userId}?token=${token}`);
+    const WS_BASE_URL = "/ws";
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsUrl = `${protocol}://${window.location.host}${WS_BASE_URL}/${userId}?token=${token}`;
+    ws.current = new WebSocket(wsUrl);
     
     // YOUR ORIGINAL onmessage LOGIC IS RESTORED
     ws.current.onmessage = (event) => {
