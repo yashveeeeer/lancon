@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   backend:
     build: ./backend
@@ -11,15 +13,18 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/app/service-account-key.json:/app/service-account-key.json:ro
-    depends_on:
-      - frontend
 
   frontend:
-    build: ./frontend
-    container_name: lancon-frontend
-    ports:
+  build:
+    context: ./frontend
+    args:
+      - REACT_APP_API_URL=/api
+  environment:
+    - REACT_APP_API_URL=/api
+  container_name: lancon-frontend
+  ports:
       - "3000:80"
-    volumes:
-      - ./frontend:/app
-    stdin_open: true
-    tty: true
+  environment:
+      - REACT_APP_API_URL=http://backend:8000
+  stdin_open: true
+  tty: true
