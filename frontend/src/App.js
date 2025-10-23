@@ -18,7 +18,7 @@ const router = createBrowserRouter([
     element: <ProtectedRoutes />,
     children: [
       { path: '/recorder', element: <Recorder /> },
-      { path: '/ws/chat', element: <Socket /> },
+      { path: '/chat', element: <Socket /> },
       {path:'/profile',element:<ProfilePage/>},
     ],
   },
