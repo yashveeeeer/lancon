@@ -9,7 +9,9 @@ const translations = {
     darkMode: "🌙 Dark",
     loginButton: "Login",
     heroTitle: "Speak Their Language. Instantly.",
-    heroSubtitle: "Chat with your friends in Japan in real-time. You type in English, they read in Japanese. They reply in Japanese, you read in English. Break the language barrier, not the conversation.",
+    heroSubtitle: "Chat with your friends in Japan or anywhere in the world — in real time. You type in English (or any language), they read in theirs. They reply in Japanese or their own language, and you read in yours. Break the language barrier, not the conversation.",
+    index1: "Supporting 10 languages",
+    index2: "and growing with your need",
     ctaButton: "Start Chatting Now",
     howItWorksTitle: "Effortless Two-Way Communication",
     youSend: "You Send English",
@@ -31,10 +33,11 @@ const translations = {
   ja: {
     appTitle: "LANCON",
     lightMode: "☀️ ライト",
-    darkMode: "🌙 ダーク",
     loginButton: "ログイン",
     heroTitle: "瞬時に、相手の言語で話そう。",
-    heroSubtitle: "日本の友達とリアルタイムでチャット。あなたが英語で入力すると、相手は日本語で読みます。相手が日本語で返信すると、あなたは英語で読みます。会話を途切れさせることなく、言語の壁をなくしましょう。",
+    heroSubtitle: "日本や世界中の友だちとリアルタイムでチャットしよう。 あなたは英語（または好きな言語）で入力し、相手は自分の言語で読むことができます。 相手が日本語や母国語で返信しても、あなたは自分の言語で読むことができます。 言葉の壁を越えて、会話を途切れさせない。",
+    index1: "10言語をサポート",
+    index2: "あなたのニーズに合わせて拡大中",
     ctaButton: "今すぐチャットを始める",
     howItWorksTitle: "簡単な双方向コミュニケーション",
     youSend: "あなたが英語で送信",
@@ -113,8 +116,11 @@ function HomePage() {
              {/* Hero section is unchanged */}
             <div className="w-full max-w-4xl">
               <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-4">{t("heroTitle")}</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">{t("heroSubtitle")}</p>
+                            <p className="text-lg text-gray-800 dark:text-gray-300 max-w-2xl mx-auto mb-6">{t("heroSubtitle")}</p>
               <div className="flex justify-center items-center space-x-4 text-2xl font-semibold text-gray-500 dark:text-gray-400 mb-8"><span>🇺🇸</span><span className="text-indigo-500">➔</span><span>🇯🇵</span></div>
+              <div className="flex justify-center items-center space-x-4 text-2xl font-semibold text-gray-500 dark:text-gray-400 mb-8"><span>🇪🇸</span><span className="text-indigo-500">➔</span><span>🇫🇷</span></div>
+              <div className="flex justify-center items-center space-x-4 text-2xl font-semibold text-gray-500 dark:text-gray-400 mb-8"><span>🇩🇪</span><span className="text-indigo-500">➔</span><span>🇺🇸</span></div>
+              <div className="flex justify-center items-center gap-2 text-lg text-gray-700 dark:text-gray-300 mt-4 tracking-wide"> 🌍 <span className="font-medium">{t("index1")}</span><span className="text-gray-700 dark:text-gray-400">— {t("index2")}</span></div>
               <button onClick={handleNavigateToLogin} className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-lg transition transform hover:scale-105">{t("ctaButton")}</button>
             </div>
           </section>
