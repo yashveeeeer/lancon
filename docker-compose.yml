@@ -4,8 +4,7 @@ services:
   backend:
     build: ./backend
     container_name: lancon-backend
-    ports:
-      - "8000:8000"
+    # CHANGE 1: REMOVED the 'ports' section. The backend is no longer public.
     env_file:
       - .env
     environment:
@@ -13,6 +12,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/app/service-account-key.json:/app/service-account-key.json:ro
+    restart: always # ADDED for production stability
 
   frontend:
     build:
@@ -20,9 +20,27 @@ services:
       args:
         - REACT_APP_API_URL=/api
     container_name: lancon-frontend
-    ports:
-      - "3000:80"
+    # CHANGE 2: REMOVED the 'ports' section. The frontend is no longer public.
     environment:
       - REACT_APP_API_URL=/api
     stdin_open: true
     tty: true
+    restart: always # ADDED for production stability
+
+  # CHANGE 3: ADDED a whole new service for our master Nginx server
+  nginx:
+    image: nginx:stable-alpine
+    container_name: lancon-nginx
+    ports:
+      # This is now the ONLY service exposed to the internet, on the correct ports.
+      - "80:80"
+      - "443:443"
+    volumes:
+      # This tells our new Nginx how to route traffic and use SSL.
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      # This ensures Nginx starts AFTER the services it needs.
+      - frontend
+      - backend
+    restart: always

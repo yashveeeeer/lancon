@@ -1,0 +1,65 @@
+# Server Block 1: HTTP to HTTPS Redirect
+# This block catches all traffic on port 80 and permanently
+# redirects it to the secure HTTPS version of the site.
+
+server {
+    listen 80;
+    server_name lanconai.com www.lanconai.com;
+
+    # This command tells Nginx to redirect the user
+    return 301 https://$host$request_uri;
+}
+
+
+# Server Block 2: Main HTTPS Application Server
+# This block handles all the secure traffic for your application.
+
+server {
+    # Listen on port 443 for SSL/TLS connections
+    listen 443 ssl http2;
+    server_name lanconai.com www.lanconai.com;
+
+    # --- SSL Certificate Configuration ---
+    # These are the paths to the certificate files Certbot created.
+    # The paths are correct because we will mount the /etc/letsencrypt folder.
+    ssl_certificate /etc/letsencrypt/live/lanconai.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/lanconai.com/privkey.pem;
+
+    # --- Main routing logic ---
+
+    # Location 1: Requests for your React App (e.g., the homepage)
+    location / {
+        # Forward the request to your 'frontend' container, which is
+        # running the React development server on its internal port 3000.
+        proxy_pass http://frontend:3000; 
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Location 2: Requests for your API Backend
+    location /api/ {
+        # Forward the request to your 'backend' container
+        proxy_pass http://backend:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Location 3: Requests for your WebSockets
+    location /ws/ {
+        # Forward the request to the backend's WebSocket endpoint
+        proxy_pass http://backend:8000/ws/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+}
+```**Save and close the file** (in nano: `Ctrl+X`, then `Y`, then `Enter`).
+
+---
+
+### Step 3: Replace Your `docker-compose.yml` Code
+
+Now, ope
