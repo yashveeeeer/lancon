@@ -86,7 +86,15 @@ def translator(text,changer):
       except Exception as e:
           print(f"Error in translation: {str(e)}")
           return e
-    
+
+def detector(text):
+     try:
+        result = translate_client.detect_language(text)
+        return result
+     except Exception as e:
+        print(f"Error in language detection:{str(e)}")
+        return e
+
 
 def jap_speech(translated_jap):
     try:

@@ -5,7 +5,7 @@ from app.database.connection import message_collection
 from app.database.connection import user_collection
 from datetime import datetime
 from fastapi import APIRouter, Depends
-from app.translation.trans import translator
+from app.translation.trans import translator, detector
 from app.auth.dependencies import get_current_user_from_token
 from fastapi.security import OAuth2PasswordBearer
 
@@ -47,13 +47,20 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 
             await message_collection.insert_one(message_doc)
 
-            if changer=="en":
+            if detector(text)=='en' and changer=='en':
                 if receiver and text:
                     await manager.send_personal_message(
                         json.dumps({"from": user_id, "message": text}),
                         receiver
-                    )
-
+                    ) 
+              
+           # if changer=="en":
+           #     if receiver and text:
+           #         await manager.send_personal_message(
+           #             json.dumps({"from": user_id, "message": text}),
+           #             receiver
+           #         )
+             
             else:
                 if receiver and text:
                    new_text = translator(text,changer)
