@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaGithub } from "react-icons/fa"; // add this at the top
 
 // Translations are updated with the more engaging examples from your image
 const translations = {
@@ -9,7 +10,7 @@ const translations = {
     darkMode: "🌙 Dark",
     loginButton: "Login",
     heroTitle: "Speak Their Language. Instantly.",
-    heroSubtitle: "Chat with your friends in Japan in real-time. You type in English, they read in Japanese. They reply in Japanese, you read in English. Break the language barrier, not the conversation.",
+    heroSubtitle: "Talk to the World — Instantly. From English to Japanese, Spanish to French — chat across languages with ease. Your words are translated live so conversations stay natural and human. Break barriers. Build connections. 🌐✨ Start Chatting Now",
     ctaButton: "Start Chatting Now",
     howItWorksTitle: "Effortless Two-Way Communication",
     youSend: "You Send English",
@@ -34,7 +35,7 @@ const translations = {
     darkMode: "🌙 ダーク",
     loginButton: "ログイン",
     heroTitle: "瞬時に、相手の言語で話そう。",
-    heroSubtitle: "日本の友達とリアルタイムでチャット。あなたが英語で入力すると、相手は日本語で読みます。相手が日本語で返信すると、あなたは英語で読みます。会話を途切れさせることなく、言語の壁をなくしましょう。",
+    heroSubtitle: "日本や世界中の友だちとリアルタイムでチャットしよう。 あなたは英語（または好きな言語）で入力し、相手は自分の言語で読むことができます。 相手が日本語や母国語で返信しても、あなたは自分の言語で読むことができます。 言葉の壁を越えて、会話を途切れさせない。",
     ctaButton: "今すぐチャットを始める",
     howItWorksTitle: "簡単な双方向コミュニケーション",
     youSend: "あなたが英語で送信",
@@ -95,26 +96,81 @@ function HomePage() {
     <div className={`${darkMode ? "dark" : ""}`}>
       <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <header className="sticky top-0 z-20 w-full bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-md backdrop-blur-md">
-            <div className="container mx-auto flex items-center justify-between p-4">
-                <h1 className="text-xl font-bold text-white tracking-wide">{t("appTitle")}</h1>
-                <div className="flex items-center gap-4">
-                    <div className="flex gap-2">
-                        <button onClick={() => changeLanguage("en")} className={`px-3 py-1 text-xs border rounded transition-colors ${currentLang === 'en' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}>English</button>
-                        <button onClick={() => changeLanguage("ja")} className={`px-3 py-1 text-xs border rounded transition-colors ${currentLang === 'ja' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}>日本語</button>
-                    </div>
-                    <button className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30" onClick={toggleTheme}>{darkMode ? t("lightMode") : t("darkMode")}</button>
-                    <button onClick={handleNavigateToLogin} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition">{t("loginButton")}</button>
-                </div>
-            </div>
-        </header>
+  <div className="container mx-auto flex items-center justify-between p-4">
+    <div className="flex flex-col">
+      <h1 className="text-xl font-bold text-white tracking-wide">{t("appTitle")}</h1>
+      <a
+        href="https://github.com/yashveeeeer"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-xs text-gray-400 hover:text-indigo-400 transition"
+      >
+        Developed by Yashveer Singh
+      </a>
+    </div>
+
+    <div className="flex items-center gap-4">
+      <div className="flex gap-2">
+        <button
+          onClick={() => changeLanguage("en")}
+          className={`px-3 py-1 text-xs border rounded transition-colors ${
+            currentLang === 'en'
+              ? 'bg-indigo-500 text-white border-indigo-500'
+              : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+          }`}
+        >
+          English
+        </button>
+        <button
+          onClick={() => changeLanguage("ja")}
+          className={`px-3 py-1 text-xs border rounded transition-colors ${
+            currentLang === 'ja'
+              ? 'bg-indigo-500 text-white border-indigo-500'
+              : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+          }`}
+        >
+          日本語
+        </button>
+      </div>
+
+      <button
+        className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30"
+        onClick={toggleTheme}
+      >
+        {darkMode ? t("lightMode") : t("darkMode")}
+      </button>
+
+      {/* GitHub icon added here */}
+      <a
+        href="https://github.com/yashveeeeer/lancon" // replace with your repo link
+        target="_blank"
+        rel="noopener noreferrer"
+        title="View Source on GitHub"
+        className="text-white text-xl hover:text-indigo-400 transition"
+      >
+        <FaGithub />
+      </a>
+
+      <button
+        onClick={handleNavigateToLogin}
+        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition"
+      >
+        {t("loginButton")}
+      </button>
+    </div>
+  </div>
+</header>
 
         <main className="flex-grow">
           <section className="flex items-center justify-center text-center py-20 px-4 bg-white dark:bg-gray-800">
              {/* Hero section is unchanged */}
             <div className="w-full max-w-4xl">
               <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-4">{t("heroTitle")}</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">{t("heroSubtitle")}</p>
+              <p className="text-lg text-gray-800 dark:text-gray-300 max-w-2xl mx-auto mb-6">{t("heroSubtitle")}</p>
               <div className="flex justify-center items-center space-x-4 text-2xl font-semibold text-gray-500 dark:text-gray-400 mb-8"><span>🇺🇸</span><span className="text-indigo-500">➔</span><span>🇯🇵</span></div>
+              <div className="flex justify-center items-center space-x-4 text-2xl font-semibold text-gray-500 dark:text-gray-400 mb-8"><span>🇪🇸</span><span className="text-indigo-500">➔</span><span>🇫🇷</span></div>
+              <div className="flex justify-center items-center space-x-4 text-2xl font-semibold text-gray-500 dark:text-gray-400 mb-8"><span>🇩🇪</span><span className="text-indigo-500">➔</span><span>🇺🇸</span></div>
+              <div className="flex justify-center items-center gap-2 text-lg text-gray-700 dark:text-gray-300 mt-4 tracking-wide"> 🌍 <span className="font-medium">Supporting 10 languages</span><span className="text-gray-700 dark:text-gray-400">— and growing with your needs</span></div>
               <button onClick={handleNavigateToLogin} className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-lg transition transform hover:scale-105">{t("ctaButton")}</button>
             </div>
           </section>
@@ -169,6 +225,8 @@ function HomePage() {
             </div>
           </section>
         </main>
+        
+        
         
         <footer className="bg-gray-200 dark:bg-gray-800 py-6">
             <div className="container mx-auto text-center text-gray-600 dark:text-gray-400"><p>{t("footerText")}</p></div>

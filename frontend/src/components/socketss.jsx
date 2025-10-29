@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
+import { FaGithub } from "react-icons/fa";
 
 const translations = {
   en: {
@@ -102,6 +103,8 @@ function Chat() {
   };
 
   const t = useCallback((key) => translations[currentLang][key] || key, [currentLang]);
+  
+  const handleNavigateToLogin = () => { navigate("/login"); };
 
   useEffect(() => {
     const savedUser = localStorage.getItem("username");
@@ -209,19 +212,71 @@ function Chat() {
     <div className={`${darkMode ? "dark" : ""}`}>
       <div className="flex h-screen flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-        <header className="sticky top-0 z-20 w-full flex-shrink-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-md backdrop-blur-md">
-            <div className="container mx-auto flex items-center justify-between p-4">
-                <h1 className="text-xl font-bold text-white tracking-wide" onClick={() => navigate("/")} style={{cursor: 'pointer'}}>{t("appTitle")}</h1>
-                <div className="flex items-center gap-4">
-                    <div className="flex gap-2">
-                        <button onClick={() => changeLanguage("en")} className={`px-3 py-1 text-xs border rounded transition-colors ${currentLang === 'en' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}>English</button>
-                        <button onClick={() => changeLanguage("ja")} className={`px-3 py-1 text-xs border rounded transition-colors ${currentLang === 'ja' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}>日本語</button>
-                    </div>
-                    <button className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30" onClick={toggleTheme}>{darkMode ? t("lightMode") : t("darkMode")}</button>
-                    <button onClick={handleSignOut} className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition">{t("signout")}</button>
-                </div>
-            </div>
-        </header>
+        <header className="sticky top-0 z-20 w-full bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-md backdrop-blur-md">
+                          <div className="container mx-auto flex items-center justify-between p-4">
+                            <div className="flex flex-col">
+                              <h1 className="text-xl font-bold text-white tracking-wide" onClick={() => navigate("/")} style={{cursor: 'pointer'}}>{t("appTitle")}</h1>
+                              <a
+                                href="https://github.com/yashveeeeer"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-gray-400 hover:text-indigo-400 transition"
+                              >
+                                Developed by Yashveer Singh
+                              </a>
+                            </div>
+                        
+                            <div className="flex items-center gap-4">
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => changeLanguage("en")}
+                                  className={`px-3 py-1 text-xs border rounded transition-colors ${
+                                    currentLang === 'en'
+                                      ? 'bg-indigo-500 text-white border-indigo-500'
+                                      : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                                  }`}
+                                >
+                                  English
+                                </button>
+                                <button
+                                  onClick={() => changeLanguage("ja")}
+                                  className={`px-3 py-1 text-xs border rounded transition-colors ${
+                                    currentLang === 'ja'
+                                      ? 'bg-indigo-500 text-white border-indigo-500'
+                                      : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                                  }`}
+                                >
+                                  日本語
+                                </button>
+                              </div>
+                        
+                              <button
+                                className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30"
+                                onClick={toggleTheme}
+                              >
+                                {darkMode ? t("lightMode") : t("darkMode")}
+                              </button>
+                        
+                              {/* GitHub icon added here */}
+                              <a
+                                href="https://github.com/yashveeeeer/lancon" // replace with your repo link
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="View Source on GitHub"
+                                className="text-white text-xl hover:text-indigo-400 transition"
+                              >
+                                <FaGithub />
+                              </a>
+                        
+                              <button
+                                onClick={handleNavigateToLogin}
+                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition"
+                              >
+                                {t("loginButton")}
+                              </button>
+                            </div>
+                          </div>
+                        </header>
 
         <main className="container mx-auto flex h-full w-full max-w-5xl flex-grow flex-row p-4 gap-4 overflow-hidden">
           

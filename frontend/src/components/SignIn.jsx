@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaGithub } from "react-icons/fa";
 
 // Translations are unchanged
 const translations = {
@@ -117,7 +118,7 @@ const SignPage = () => {
     }
   };
   // --- END OF YOUR ORIGINAL CORE LOGIC ---
-
+  const handleNavigateToLogin = () => { navigate("/login"); };
   // UI Helper Icons
   const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
   const IdIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 012-2h2a2 2 0 012 2v1m-6 0h6" /></svg>;
@@ -131,18 +132,70 @@ const SignPage = () => {
 
         {/* 🔹 Consistent Global Header */}
         <header className="sticky top-0 z-20 w-full bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-md backdrop-blur-md">
-            <div className="container mx-auto flex items-center justify-between p-4">
-                <h1 className="text-xl font-bold text-white tracking-wide" onClick={() => navigate("/")} style={{cursor: 'pointer'}}>{t("appTitle")}</h1>
-                <div className="flex items-center gap-4">
-                    <div className="flex gap-2">
-                        <button onClick={() => changeLanguage("en")} className={`px-3 py-1 text-xs border rounded transition-colors ${currentLang === 'en' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}>English</button>
-                        <button onClick={() => changeLanguage("ja")} className={`px-3 py-1 text-xs border rounded transition-colors ${currentLang === 'ja' ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}>日本語</button>
+                  <div className="container mx-auto flex items-center justify-between p-4">
+                    <div className="flex flex-col">
+                      <h1 className="text-xl font-bold text-white tracking-wide" onClick={() => navigate("/")} style={{cursor: 'pointer'}}>{t("appTitle")}</h1>
+                      <a
+                        href="https://github.com/yashveeeeer"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-gray-400 hover:text-indigo-400 transition"
+                      >
+                        Developed by Yashveer Singh
+                      </a>
                     </div>
-                    <button className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30" onClick={toggleTheme}>{darkMode ? t("lightMode") : t("darkMode")}</button>
-                    <button onClick={() => navigate("/login")} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition">{t("loginButton")}</button>
-                </div>
-            </div>
-        </header>
+                
+                    <div className="flex items-center gap-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => changeLanguage("en")}
+                          className={`px-3 py-1 text-xs border rounded transition-colors ${
+                            currentLang === 'en'
+                              ? 'bg-indigo-500 text-white border-indigo-500'
+                              : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                          }`}
+                        >
+                          English
+                        </button>
+                        <button
+                          onClick={() => changeLanguage("ja")}
+                          className={`px-3 py-1 text-xs border rounded transition-colors ${
+                            currentLang === 'ja'
+                              ? 'bg-indigo-500 text-white border-indigo-500'
+                              : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                          }`}
+                        >
+                          日本語
+                        </button>
+                      </div>
+                
+                      <button
+                        className="text-sm bg-white/20 text-white px-3 py-1 rounded-lg hover:bg-white/30"
+                        onClick={toggleTheme}
+                      >
+                        {darkMode ? t("lightMode") : t("darkMode")}
+                      </button>
+                
+                      {/* GitHub icon added here */}
+                      <a
+                        href="https://github.com/yashveeeeer/lancon" // replace with your repo link
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="View Source on GitHub"
+                        className="text-white text-xl hover:text-indigo-400 transition"
+                      >
+                        <FaGithub />
+                      </a>
+                
+                      <button
+                        onClick={handleNavigateToLogin}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition"
+                      >
+                        {t("loginButton")}
+                      </button>
+                    </div>
+                  </div>
+                </header>
 
         {/* 🔹 Main Content Area */}
         <main className="flex-grow flex items-center justify-center p-4">
